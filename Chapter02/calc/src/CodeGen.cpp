@@ -27,21 +27,17 @@ public:
   }
 
   void run(AST *Tree) {
-    FunctionType *MainFty = FunctionType::get(
-        Int32Ty, {Int32Ty, PtrTy}, false);
-    Function *MainFn = Function::Create(
-        MainFty, GlobalValue::ExternalLinkage, "main", M);
-    BasicBlock *BB = BasicBlock::Create(M->getContext(),
-                                        "entry", MainFn);
+    FunctionType *MainFty = FunctionType::get(Int32Ty, {Int32Ty, PtrTy}, false);
+    Function *MainFn =
+        Function::Create(MainFty, GlobalValue::ExternalLinkage, "main", M);
+    BasicBlock *BB = BasicBlock::Create(M->getContext(), "entry", MainFn);
     Builder.SetInsertPoint(BB);
 
     Tree->accept(*this);
 
-    FunctionType *CalcWriteFnTy =
-        FunctionType::get(VoidTy, {Int32Ty}, false);
+    FunctionType *CalcWriteFnTy = FunctionType::get(VoidTy, {Int32Ty}, false);
     Function *CalcWriteFn = Function::Create(
-        CalcWriteFnTy, GlobalValue::ExternalLinkage,
-        "calc_write", M);
+        CalcWriteFnTy, GlobalValue::ExternalLinkage, "calc_write", M);
     Builder.CreateCall(CalcWriteFnTy, CalcWriteFn, {V});
 
     Builder.CreateRet(Int32Zero);
@@ -79,24 +75,19 @@ public:
   };
 
   virtual void visit(WithDecl &Node) override {
-    FunctionType *ReadFty =
-        FunctionType::get(Int32Ty, {PtrTy}, false);
-    Function *ReadFn = Function::Create(
-        ReadFty, GlobalValue::ExternalLinkage, "calc_read",
-        M);
-    for (auto I = Node.begin(), E = Node.end(); I != E;
-         ++I) {
+    FunctionType *ReadFty = FunctionType::get(Int32Ty, {PtrTy}, false);
+    Function *ReadFn =
+        Function::Create(ReadFty, GlobalValue::ExternalLinkage, "calc_read", M);
+    for (auto I = Node.begin(), E = Node.end(); I != E; ++I) {
       StringRef Var = *I;
 
       // Create call to calc_read function.
-      Constant *StrText = ConstantDataArray::getString(
-          M->getContext(), Var);
-      GlobalVariable *Str = new GlobalVariable(
-          *M, StrText->getType(),
-          /*isConstant=*/true, GlobalValue::PrivateLinkage,
-          StrText, Twine(Var).concat(".str"));
-      CallInst *Call =
-          Builder.CreateCall(ReadFty, ReadFn, {Str});
+      Constant *StrText = ConstantDataArray::getString(M->getContext(), Var);
+      GlobalVariable *Str =
+          new GlobalVariable(*M, StrText->getType(),
+                             /*isConstant=*/true, GlobalValue::PrivateLinkage,
+                             StrText, Twine(Var).concat(".str"));
+      CallInst *Call = Builder.CreateCall(ReadFty, ReadFn, {Str});
 
       nameMap[Var] = Call;
     }

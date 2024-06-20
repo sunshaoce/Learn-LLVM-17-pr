@@ -12,13 +12,11 @@ class CodeGenerator {
   llvm::TargetMachine *TM;
 
 protected:
-  CodeGenerator(llvm::LLVMContext &Ctx,
-                llvm::TargetMachine *TM)
+  CodeGenerator(llvm::LLVMContext &Ctx, llvm::TargetMachine *TM)
       : Ctx(Ctx), TM(TM) {}
 
 public:
-  static CodeGenerator *create(llvm::LLVMContext &Ctx,
-                               llvm::TargetMachine *TM);
+  static CodeGenerator *create(llvm::LLVMContext &Ctx, llvm::TargetMachine *TM);
 
   std::unique_ptr<llvm::Module> run(ModuleDeclaration *CM,
                                     std::string FileName);

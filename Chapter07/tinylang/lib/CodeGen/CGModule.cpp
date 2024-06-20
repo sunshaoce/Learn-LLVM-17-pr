@@ -5,9 +5,9 @@
 
 using namespace tinylang;
 
-static llvm::cl::opt<bool>
-    Debug("g", llvm::cl::desc("Generate debug information"),
-          llvm::cl::init(false));
+static llvm::cl::opt<bool> Debug("g",
+                                 llvm::cl::desc("Generate debug information"),
+                                 llvm::cl::init(false));
 
 CGModule::CGModule(ASTContext &ASTCtx, llvm::Module *M)
     : ASTCtx(ASTCtx), M(M), TBAA(CGTBAA(*this)) {
@@ -19,8 +19,7 @@ void CGModule::initialize() {
   Int1Ty = llvm::Type::getInt1Ty(getLLVMCtx());
   Int32Ty = llvm::Type::getInt32Ty(getLLVMCtx());
   Int64Ty = llvm::Type::getInt64Ty(getLLVMCtx());
-  Int32Zero =
-      llvm::ConstantInt::get(Int32Ty, 0, /*isSigned*/ true);
+  Int32Zero = llvm::ConstantInt::get(Int32Ty, 0, /*isSigned*/ true);
   if (Debug)
     DebugInfo.reset(new CGDebugInfo(*this));
 }
@@ -34,38 +33,29 @@ llvm::Type *CGModule::convertType(TypeDeclaration *Ty) {
       return Int64Ty;
     if (Ty->getName() == "BOOLEAN")
       return Int1Ty;
-  } else if (auto *AliasTy =
-                 llvm::dyn_cast<AliasTypeDeclaration>(Ty)) {
+  } else if (auto *AliasTy = llvm::dyn_cast<AliasTypeDeclaration>(Ty)) {
     llvm::Type *T = convertType(AliasTy->getType());
     return TypeCache[Ty] = T;
-  } else if (auto *ArrayTy =
-                 llvm::dyn_cast<ArrayTypeDeclaration>(Ty)) {
-    llvm::Type *Component =
-        convertType(ArrayTy->getType());
+  } else if (auto *ArrayTy = llvm::dyn_cast<ArrayTypeDeclaration>(Ty)) {
+    llvm::Type *Component = convertType(ArrayTy->getType());
     // The semantic analysis makes sure that the Nums
     // expression is a constant expression of type
     // INTEGER. To simplify the coding, we expect an
     // IntegerLiteral here.
     // TODO Evaluate the constant expression.
     Expr *Nums = ArrayTy->getNums();
-    assert(llvm::cast<IntegerLiteral>(Nums) &&
-           "Expected an integer literal");
+    assert(llvm::cast<IntegerLiteral>(Nums) && "Expected an integer literal");
     uint64_t NumElements =
-        llvm::cast<IntegerLiteral>(Nums)
-            ->getValue()
-            .getZExtValue();
-    llvm::Type *T =
-        llvm::ArrayType::get(Component, NumElements);
+        llvm::cast<IntegerLiteral>(Nums)->getValue().getZExtValue();
+    llvm::Type *T = llvm::ArrayType::get(Component, NumElements);
     return TypeCache[Ty] = T;
-  } else if (auto *RecordTy =
-                 llvm ::dyn_cast<RecordTypeDeclaration>(
-                     Ty)) {
+  } else if (auto *RecordTy = llvm ::dyn_cast<RecordTypeDeclaration>(Ty)) {
     llvm::SmallVector<llvm::Type *, 4> Elements;
     for (const auto &F : RecordTy->getFields()) {
       Elements.push_back(convertType(F.getType()));
     }
-    llvm::Type *T = llvm::StructType::create(
-        Elements, RecordTy->getName(), false);
+    llvm::Type *T =
+        llvm::StructType::create(Elements, RecordTy->getName(), false);
     return TypeCache[Ty] = T;
   }
   llvm::report_fatal_error("Unsupported type");
@@ -86,18 +76,14 @@ std::string CGModule::mangleName(Decl *D) {
   return Mangled;
 }
 
-void CGModule::decorateInst(llvm::Instruction *Inst,
-                            TypeDeclaration *Type) {
+void CGModule::decorateInst(llvm::Instruction *Inst, TypeDeclaration *Type) {
   if (auto *N = TBAA.getAccessTagInfo(Type))
     Inst->setMetadata(llvm::LLVMContext::MD_tbaa, N);
 }
 
-llvm::GlobalObject *CGModule::getGlobal(Decl *D) {
-  return Globals[D];
-}
+llvm::GlobalObject *CGModule::getGlobal(Decl *D) { return Globals[D]; }
 
-void CGModule::applyLocation(llvm::Instruction *Inst,
-                             llvm::SMLoc Loc) {
+void CGModule::applyLocation(llvm::Instruction *Inst, llvm::SMLoc Loc) {
   if (CGDebugInfo *Dbg = getDbgInfo())
     Inst->setDebugLoc(Dbg->getDebugLoc(Loc));
 }
@@ -105,20 +91,16 @@ void CGModule::applyLocation(llvm::Instruction *Inst,
 void CGModule::run(ModuleDeclaration *Mod) {
   this->Mod = Mod;
   for (auto *Decl : Mod->getDecls()) {
-    if (auto *Var =
-            llvm::dyn_cast<VariableDeclaration>(Decl)) {
+    if (auto *Var = llvm::dyn_cast<VariableDeclaration>(Decl)) {
       // Create global variables
       llvm::GlobalVariable *V = new llvm::GlobalVariable(
           *M, convertType(Var->getType()),
-          /*isConstant=*/false,
-          llvm::GlobalValue::PrivateLinkage, nullptr,
+          /*isConstant=*/false, llvm::GlobalValue::PrivateLinkage, nullptr,
           mangleName(Var));
       Globals[Var] = V;
       if (CGDebugInfo *Dbg = getDbgInfo())
         Dbg->emitGlobalVariable(Var, V);
-    } else if (auto *Proc =
-                   llvm::dyn_cast<ProcedureDeclaration>(
-                       Decl)) {
+    } else if (auto *Proc = llvm::dyn_cast<ProcedureDeclaration>(Decl)) {
       CGProcedure CGP(*this);
       CGP.run(Proc);
     }

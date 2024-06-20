@@ -22,12 +22,15 @@
 
 using namespace tinylang;
 
-CodeGenerator *CodeGenerator::create(llvm::LLVMContext &Ctx, ASTContext &ASTCtx, llvm::TargetMachine *TM) {
+CodeGenerator *CodeGenerator::create(llvm::LLVMContext &Ctx, ASTContext &ASTCtx,
+                                     llvm::TargetMachine *TM) {
   return new CodeGenerator(Ctx, ASTCtx, TM);
 }
 
-std::unique_ptr<llvm::Module> CodeGenerator::run(ModuleDeclaration *Mod, std::string FileName) {
-  std::unique_ptr<llvm::Module> M = std::make_unique<llvm::Module>(FileName, Ctx);
+std::unique_ptr<llvm::Module> CodeGenerator::run(ModuleDeclaration *Mod,
+                                                 std::string FileName) {
+  std::unique_ptr<llvm::Module> M =
+      std::make_unique<llvm::Module>(FileName, Ctx);
   M->setTargetTriple(TM->getTargetTriple().getTriple());
   M->setDataLayout(TM->createDataLayout());
   CGModule CGM(ASTCtx, M.get());

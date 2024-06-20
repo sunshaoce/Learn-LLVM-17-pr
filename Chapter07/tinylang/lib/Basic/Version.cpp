@@ -1,5 +1,3 @@
 #include "tinylang/Basic/Version.h"
 
-std::string tinylang::getTinylangVersion() {
-  return TINYLANG_VERSION_STRING;
-}
+std::string tinylang::getTinylangVersion() { return TINYLANG_VERSION_STRING; }

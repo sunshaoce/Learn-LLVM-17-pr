@@ -31,9 +31,7 @@ public:
   void initialize();
 
   ASTContext &getASTCtx() { return ASTCtx; }
-  llvm::LLVMContext &getLLVMCtx() {
-    return M->getContext();
-  }
+  llvm::LLVMContext &getLLVMCtx() { return M->getContext(); }
   llvm::Module *getModule() { return M; }
   ModuleDeclaration *getModuleDeclaration() { return Mod; }
 

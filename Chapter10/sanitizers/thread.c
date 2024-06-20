@@ -3,12 +3,14 @@
 int data = 0;
 
 void *producer(void *x) {
-  for (int i = 0; i < 10000; ++i) ++data ;
+  for (int i = 0; i < 10000; ++i)
+    ++data;
   return x;
 }
 
 void *consumer(void *x) {
-  for (int i = 0; i < 10000; ++i) --data;
+  for (int i = 0; i < 10000; ++i)
+    --data;
   return x;
 }
 

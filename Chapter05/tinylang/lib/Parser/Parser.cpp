@@ -9,8 +9,7 @@ OperatorInfo fromTok(Token Tok) {
 }
 } // namespace
 
-Parser::Parser(Lexer &Lex, Sema &Actions)
-    : Lex(Lex), Actions(Actions) {
+Parser::Parser(Lexer &Lex, Sema &Actions) : Lex(Lex), Actions(Actions) {
   advance();
 }
 
@@ -20,15 +19,13 @@ ModuleDeclaration *Parser::parse() {
   return ModDecl;
 }
 
-bool Parser::parseCompilationUnit(
-    ModuleDeclaration *&D) {
+bool Parser::parseCompilationUnit(ModuleDeclaration *&D) {
   auto _errorhandler = [this] { return skipUntil(); };
   if (consume(tok::kw_MODULE))
     return _errorhandler();
   if (expect(tok::identifier))
     return _errorhandler();
-  D = Actions.actOnModuleDeclaration(
-      Tok.getLocation(), Tok.getIdentifier());
+  D = Actions.actOnModuleDeclaration(Tok.getLocation(), Tok.getIdentifier());
 
   EnterDeclScope S(Actions, D);
   advance();
@@ -44,8 +41,7 @@ bool Parser::parseCompilationUnit(
     return _errorhandler();
   if (expect(tok::identifier))
     return _errorhandler();
-  Actions.actOnModuleDeclaration(D, Tok.getLocation(),
-                                 Tok.getIdentifier(),
+  Actions.actOnModuleDeclaration(D, Tok.getLocation(), Tok.getIdentifier(),
                                  Decls, Stmts);
   advance();
   if (consume(tok::period))
@@ -55,10 +51,9 @@ bool Parser::parseCompilationUnit(
 
 bool Parser::parseImport() {
   auto _errorhandler = [this] {
-    return skipUntil(tok::kw_BEGIN, tok::kw_CONST,
-                     tok::kw_END, tok::kw_FROM,
-                     tok::kw_IMPORT, tok::kw_PROCEDURE,
-                     tok::kw_TYPE, tok::kw_VAR);
+    return skipUntil(tok::kw_BEGIN, tok::kw_CONST, tok::kw_END, tok::kw_FROM,
+                     tok::kw_IMPORT, tok::kw_PROCEDURE, tok::kw_TYPE,
+                     tok::kw_VAR);
   };
   IdentList Ids;
   StringRef ModuleName;
@@ -80,13 +75,10 @@ bool Parser::parseImport() {
   return false;
 }
 
-bool Parser::parseBlock(DeclList &Decls,
-                        StmtList &Stmts) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::identifier);
-  };
-  while (Tok.isOneOf(tok::kw_CONST, tok::kw_PROCEDURE,
-                     tok::kw_TYPE, tok::kw_VAR)) {
+bool Parser::parseBlock(DeclList &Decls, StmtList &Stmts) {
+  auto _errorhandler = [this] { return skipUntil(tok::identifier); };
+  while (Tok.isOneOf(tok::kw_CONST, tok::kw_PROCEDURE, tok::kw_TYPE,
+                     tok::kw_VAR)) {
     if (parseDeclaration(Decls))
       return _errorhandler();
   }
@@ -102,9 +94,8 @@ bool Parser::parseBlock(DeclList &Decls,
 
 bool Parser::parseDeclaration(DeclList &Decls) {
   auto _errorhandler = [this] {
-    return skipUntil(tok::kw_BEGIN, tok::kw_CONST,
-                     tok::kw_END, tok::kw_PROCEDURE,
-                     tok::kw_TYPE, tok::kw_VAR);
+    return skipUntil(tok::kw_BEGIN, tok::kw_CONST, tok::kw_END,
+                     tok::kw_PROCEDURE, tok::kw_TYPE, tok::kw_VAR);
   };
   if (Tok.is(tok::kw_CONST)) {
     advance();
@@ -143,9 +134,7 @@ bool Parser::parseDeclaration(DeclList &Decls) {
 }
 
 bool Parser::parseConstantDeclaration(DeclList &Decls) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::semi);
-  };
+  auto _errorhandler = [this] { return skipUntil(tok::semi); };
   if (expect(tok::identifier))
     return _errorhandler();
   SMLoc Loc = Tok.getLocation();
@@ -163,9 +152,7 @@ bool Parser::parseConstantDeclaration(DeclList &Decls) {
 }
 
 bool Parser::parseTypeDeclaration(DeclList &Decls) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::semi);
-  };
+  auto _errorhandler = [this] { return skipUntil(tok::semi); };
   if (expect(tok::identifier))
     return _errorhandler();
   SMLoc Loc = Tok.getLocation();
@@ -178,8 +165,7 @@ bool Parser::parseTypeDeclaration(DeclList &Decls) {
     Decl *D;
     if (parseQualident(D))
       return _errorhandler();
-    Actions.actOnAliasTypeDeclaration(Decls, Loc, Name,
-                                      D);
+    Actions.actOnAliasTypeDeclaration(Decls, Loc, Name, D);
   } else if (Tok.is(tok::kw_POINTER)) {
     advance();
     if (expect(tok::kw_TO))
@@ -188,8 +174,7 @@ bool Parser::parseTypeDeclaration(DeclList &Decls) {
     advance();
     if (parseQualident(D))
       return _errorhandler();
-    Actions.actOnPointerTypeDeclaration(Decls, Loc,
-                                        Name, D);
+    Actions.actOnPointerTypeDeclaration(Decls, Loc, Name, D);
   } else if (Tok.is(tok::kw_ARRAY)) {
     advance();
     if (expect(tok::l_square))
@@ -206,8 +191,7 @@ bool Parser::parseTypeDeclaration(DeclList &Decls) {
     advance();
     if (parseQualident(D))
       return _errorhandler();
-    Actions.actOnArrayTypeDeclaration(Decls, Loc, Name,
-                                      E, D);
+    Actions.actOnArrayTypeDeclaration(Decls, Loc, Name, E, D);
   } else if (Tok.is(tok::kw_RECORD)) {
     FieldList Fields;
     advance();
@@ -215,8 +199,7 @@ bool Parser::parseTypeDeclaration(DeclList &Decls) {
       return _errorhandler();
     if (expect(tok::kw_END))
       return _errorhandler();
-    Actions.actOnRecordTypeDeclaration(Decls, Loc, Name,
-                                       Fields);
+    Actions.actOnRecordTypeDeclaration(Decls, Loc, Name, Fields);
     advance();
   } else {
     /*ERROR*/
@@ -226,9 +209,7 @@ bool Parser::parseTypeDeclaration(DeclList &Decls) {
 }
 
 bool Parser::parseFieldList(FieldList &Fields) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::kw_END);
-  };
+  auto _errorhandler = [this] { return skipUntil(tok::kw_END); };
   if (parseField(Fields))
     return _errorhandler();
   while (Tok.is(tok::semi)) {
@@ -240,9 +221,7 @@ bool Parser::parseFieldList(FieldList &Fields) {
 }
 
 bool Parser::parseField(FieldList &Fields) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::semi, tok::kw_END);
-  };
+  auto _errorhandler = [this] { return skipUntil(tok::semi, tok::kw_END); };
   Decl *D;
   IdentList Ids;
   if (parseIdentList(Ids))
@@ -256,9 +235,7 @@ bool Parser::parseField(FieldList &Fields) {
 }
 
 bool Parser::parseVariableDeclaration(DeclList &Decls) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::semi);
-  };
+  auto _errorhandler = [this] { return skipUntil(tok::semi); };
   Decl *D;
   IdentList Ids;
   if (parseIdentList(Ids))
@@ -271,18 +248,14 @@ bool Parser::parseVariableDeclaration(DeclList &Decls) {
   return false;
 }
 
-bool Parser::parseProcedureDeclaration(
-    DeclList &ParentDecls) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::semi);
-  };
+bool Parser::parseProcedureDeclaration(DeclList &ParentDecls) {
+  auto _errorhandler = [this] { return skipUntil(tok::semi); };
   if (consume(tok::kw_PROCEDURE))
     return _errorhandler();
   if (expect(tok::identifier))
     return _errorhandler();
   ProcedureDeclaration *D =
-      Actions.actOnProcedureDeclaration(
-          Tok.getLocation(), Tok.getIdentifier());
+      Actions.actOnProcedureDeclaration(Tok.getLocation(), Tok.getIdentifier());
 
   EnterDeclScope S(Actions, D);
   FormalParamList Params;
@@ -302,20 +275,16 @@ bool Parser::parseProcedureDeclaration(
     return _errorhandler();
   if (expect(tok::identifier))
     return _errorhandler();
-  Actions.actOnProcedureDeclaration(
-      D, Tok.getLocation(), Tok.getIdentifier(), Decls,
-      Stmts);
+  Actions.actOnProcedureDeclaration(D, Tok.getLocation(), Tok.getIdentifier(),
+                                    Decls, Stmts);
 
   ParentDecls.push_back(D);
   advance();
   return false;
 }
 
-bool Parser::parseFormalParameters(
-    FormalParamList &Params, Decl *&RetType) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::semi);
-  };
+bool Parser::parseFormalParameters(FormalParamList &Params, Decl *&RetType) {
+  auto _errorhandler = [this] { return skipUntil(tok::semi); };
   if (consume(tok::l_paren))
     return _errorhandler();
   if (Tok.isOneOf(tok::kw_VAR, tok::identifier)) {
@@ -332,11 +301,8 @@ bool Parser::parseFormalParameters(
   return false;
 }
 
-bool Parser::parseFormalParameterList(
-    FormalParamList &Params) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::r_paren);
-  };
+bool Parser::parseFormalParameterList(FormalParamList &Params) {
+  auto _errorhandler = [this] { return skipUntil(tok::r_paren); };
   if (parseFormalParameter(Params))
     return _errorhandler();
   while (Tok.is(tok::semi)) {
@@ -347,11 +313,8 @@ bool Parser::parseFormalParameterList(
   return false;
 }
 
-bool Parser::parseFormalParameter(
-    FormalParamList &Params) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::r_paren, tok::semi);
-  };
+bool Parser::parseFormalParameter(FormalParamList &Params) {
+  auto _errorhandler = [this] { return skipUntil(tok::r_paren, tok::semi); };
   IdentList Ids;
   Decl *D;
   bool IsVar = false;
@@ -365,15 +328,12 @@ bool Parser::parseFormalParameter(
     return _errorhandler();
   if (parseQualident(D))
     return _errorhandler();
-  Actions.actOnFormalParameterDeclaration(Params, Ids,
-                                          D, IsVar);
+  Actions.actOnFormalParameterDeclaration(Params, Ids, D, IsVar);
   return false;
 }
 
 bool Parser::parseStatementSequence(StmtList &Stmts) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::kw_ELSE, tok::kw_END);
-  };
+  auto _errorhandler = [this] { return skipUntil(tok::kw_ELSE, tok::kw_END); };
   if (parseStatement(Stmts))
     return _errorhandler();
   while (Tok.is(tok::semi)) {
@@ -386,8 +346,7 @@ bool Parser::parseStatementSequence(StmtList &Stmts) {
 
 bool Parser::parseStatement(StmtList &Stmts) {
   auto _errorhandler = [this] {
-    return skipUntil(tok::semi, tok::kw_ELSE,
-                     tok::kw_END);
+    return skipUntil(tok::semi, tok::kw_ELSE, tok::kw_END);
   };
   if (Tok.is(tok::identifier)) {
     Decl *D;
@@ -408,10 +367,8 @@ bool Parser::parseStatement(StmtList &Stmts) {
       ExprList Exprs;
       if (Tok.is(tok::l_paren)) {
         advance();
-        if (Tok.isOneOf(tok::l_paren, tok::plus,
-                        tok::minus, tok::kw_NOT,
-                        tok::identifier,
-                        tok::integer_literal)) {
+        if (Tok.isOneOf(tok::l_paren, tok::plus, tok::minus, tok::kw_NOT,
+                        tok::identifier, tok::integer_literal)) {
           if (parseExpList(Exprs))
             return _errorhandler();
         }
@@ -438,8 +395,7 @@ bool Parser::parseStatement(StmtList &Stmts) {
 
 bool Parser::parseIfStatement(StmtList &Stmts) {
   auto _errorhandler = [this] {
-    return skipUntil(tok::semi, tok::kw_ELSE,
-                     tok::kw_END);
+    return skipUntil(tok::semi, tok::kw_ELSE, tok::kw_END);
   };
   Expr *E = nullptr;
   StmtList IfStmts, ElseStmts;
@@ -459,16 +415,14 @@ bool Parser::parseIfStatement(StmtList &Stmts) {
   }
   if (expect(tok::kw_END))
     return _errorhandler();
-  Actions.actOnIfStatement(Stmts, Loc, E, IfStmts,
-                           ElseStmts);
+  Actions.actOnIfStatement(Stmts, Loc, E, IfStmts, ElseStmts);
   advance();
   return false;
 }
 
 bool Parser::parseWhileStatement(StmtList &Stmts) {
   auto _errorhandler = [this] {
-    return skipUntil(tok::semi, tok::kw_ELSE,
-                     tok::kw_END);
+    return skipUntil(tok::semi, tok::kw_ELSE, tok::kw_END);
   };
   Expr *E = nullptr;
   StmtList WhileStmts;
@@ -483,24 +437,21 @@ bool Parser::parseWhileStatement(StmtList &Stmts) {
     return _errorhandler();
   if (expect(tok::kw_END))
     return _errorhandler();
-  Actions.actOnWhileStatement(Stmts, Loc, E,
-                              WhileStmts);
+  Actions.actOnWhileStatement(Stmts, Loc, E, WhileStmts);
   advance();
   return false;
 }
 
 bool Parser::parseReturnStatement(StmtList &Stmts) {
   auto _errorhandler = [this] {
-    return skipUntil(tok::semi, tok::kw_ELSE,
-                     tok::kw_END);
+    return skipUntil(tok::semi, tok::kw_ELSE, tok::kw_END);
   };
   Expr *E = nullptr;
   SMLoc Loc = Tok.getLocation();
   if (consume(tok::kw_RETURN))
     return _errorhandler();
-  if (Tok.isOneOf(tok::l_paren, tok::plus, tok::minus,
-                  tok::kw_NOT, tok::identifier,
-                  tok::integer_literal)) {
+  if (Tok.isOneOf(tok::l_paren, tok::plus, tok::minus, tok::kw_NOT,
+                  tok::identifier, tok::integer_literal)) {
     if (parseExpression(E))
       return _errorhandler();
   }
@@ -509,9 +460,7 @@ bool Parser::parseReturnStatement(StmtList &Stmts) {
 }
 
 bool Parser::parseExpList(ExprList &Exprs) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::r_paren);
-  };
+  auto _errorhandler = [this] { return skipUntil(tok::r_paren); };
   Expr *E = nullptr;
   if (parseExpression(E))
     return _errorhandler();
@@ -530,16 +479,13 @@ bool Parser::parseExpList(ExprList &Exprs) {
 
 bool Parser::parseExpression(Expr *&E) {
   auto _errorhandler = [this] {
-    return skipUntil(tok::r_paren, tok::comma,
-                     tok::semi, tok::kw_DO,
-                     tok::kw_ELSE, tok::kw_END,
-                     tok::kw_THEN, tok::r_square);
+    return skipUntil(tok::r_paren, tok::comma, tok::semi, tok::kw_DO,
+                     tok::kw_ELSE, tok::kw_END, tok::kw_THEN, tok::r_square);
   };
   if (parseSimpleExpression(E))
     return _errorhandler();
-  if (Tok.isOneOf(tok::hash, tok::less, tok::lessequal,
-                  tok::equal, tok::greater,
-                  tok::greaterequal)) {
+  if (Tok.isOneOf(tok::hash, tok::less, tok::lessequal, tok::equal,
+                  tok::greater, tok::greaterequal)) {
     OperatorInfo Op;
     Expr *Right = nullptr;
     if (parseRelation(Op))
@@ -553,10 +499,8 @@ bool Parser::parseExpression(Expr *&E) {
 
 bool Parser::parseRelation(OperatorInfo &Op) {
   auto _errorhandler = [this] {
-    return skipUntil(tok::l_paren, tok::plus,
-                     tok::minus, tok::kw_NOT,
-                     tok::identifier,
-                     tok::integer_literal);
+    return skipUntil(tok::l_paren, tok::plus, tok::minus, tok::kw_NOT,
+                     tok::identifier, tok::integer_literal);
   };
   if (Tok.is(tok::equal)) {
     Op = fromTok(Tok);
@@ -585,12 +529,10 @@ bool Parser::parseRelation(OperatorInfo &Op) {
 
 bool Parser::parseSimpleExpression(Expr *&E) {
   auto _errorhandler = [this] {
-    return skipUntil(
-        tok::hash, tok::r_paren, tok::comma, tok::semi,
-        tok::less, tok::lessequal, tok::equal,
-        tok::greater, tok::greaterequal, tok::kw_DO,
-        tok::kw_ELSE, tok::kw_END, tok::kw_THEN,
-        tok::r_square);
+    return skipUntil(tok::hash, tok::r_paren, tok::comma, tok::semi, tok::less,
+                     tok::lessequal, tok::equal, tok::greater,
+                     tok::greaterequal, tok::kw_DO, tok::kw_ELSE, tok::kw_END,
+                     tok::kw_THEN, tok::r_square);
   };
   OperatorInfo PrefixOp;
   if (Tok.isOneOf(tok::plus, tok::minus)) {
@@ -604,8 +546,7 @@ bool Parser::parseSimpleExpression(Expr *&E) {
   }
   if (parseTerm(E))
     return _errorhandler();
-  while (
-      Tok.isOneOf(tok::plus, tok::minus, tok::kw_OR)) {
+  while (Tok.isOneOf(tok::plus, tok::minus, tok::kw_OR)) {
     OperatorInfo Op;
     Expr *Right = nullptr;
     if (parseAddOperator(Op))
@@ -622,8 +563,7 @@ bool Parser::parseSimpleExpression(Expr *&E) {
 
 bool Parser::parseAddOperator(OperatorInfo &Op) {
   auto _errorhandler = [this] {
-    return skipUntil(tok::l_paren, tok::kw_NOT,
-                     tok::identifier,
+    return skipUntil(tok::l_paren, tok::kw_NOT, tok::identifier,
                      tok::integer_literal);
   };
   if (Tok.is(tok::plus)) {
@@ -644,18 +584,15 @@ bool Parser::parseAddOperator(OperatorInfo &Op) {
 
 bool Parser::parseTerm(Expr *&E) {
   auto _errorhandler = [this] {
-    return skipUntil(
-        tok::hash, tok::r_paren, tok::plus, tok::comma,
-        tok::minus, tok::semi, tok::less,
-        tok::lessequal, tok::equal, tok::greater,
-        tok::greaterequal, tok::kw_DO, tok::kw_ELSE,
-        tok::kw_END, tok::kw_OR, tok::kw_THEN,
-        tok::r_square);
+    return skipUntil(tok::hash, tok::r_paren, tok::plus, tok::comma, tok::minus,
+                     tok::semi, tok::less, tok::lessequal, tok::equal,
+                     tok::greater, tok::greaterequal, tok::kw_DO, tok::kw_ELSE,
+                     tok::kw_END, tok::kw_OR, tok::kw_THEN, tok::r_square);
   };
   if (parseFactor(E))
     return _errorhandler();
-  while (Tok.isOneOf(tok::star, tok::slash, tok::kw_AND,
-                     tok::kw_DIV, tok::kw_MOD)) {
+  while (Tok.isOneOf(tok::star, tok::slash, tok::kw_AND, tok::kw_DIV,
+                     tok::kw_MOD)) {
     OperatorInfo Op;
     Expr *Right = nullptr;
     if (parseMulOperator(Op))
@@ -669,8 +606,7 @@ bool Parser::parseTerm(Expr *&E) {
 
 bool Parser::parseMulOperator(OperatorInfo &Op) {
   auto _errorhandler = [this] {
-    return skipUntil(tok::l_paren, tok::kw_NOT,
-                     tok::identifier,
+    return skipUntil(tok::l_paren, tok::kw_NOT, tok::identifier,
                      tok::integer_literal);
   };
   if (Tok.is(tok::star)) {
@@ -697,18 +633,15 @@ bool Parser::parseMulOperator(OperatorInfo &Op) {
 
 bool Parser::parseFactor(Expr *&E) {
   auto _errorhandler = [this] {
-    return skipUntil(
-        tok::hash, tok::r_paren, tok::star, tok::plus,
-        tok::comma, tok::minus, tok::slash, tok::semi,
-        tok::less, tok::lessequal, tok::equal,
-        tok::greater, tok::greaterequal, tok::kw_AND,
-        tok::kw_DIV, tok::kw_DO, tok::kw_ELSE,
-        tok::kw_END, tok::kw_MOD, tok::kw_OR,
-        tok::kw_THEN, tok::r_square);
+    return skipUntil(tok::hash, tok::r_paren, tok::star, tok::plus, tok::comma,
+                     tok::minus, tok::slash, tok::semi, tok::less,
+                     tok::lessequal, tok::equal, tok::greater,
+                     tok::greaterequal, tok::kw_AND, tok::kw_DIV, tok::kw_DO,
+                     tok::kw_ELSE, tok::kw_END, tok::kw_MOD, tok::kw_OR,
+                     tok::kw_THEN, tok::r_square);
   };
   if (Tok.is(tok::integer_literal)) {
-    E = Actions.actOnIntegerLiteral(
-        Tok.getLocation(), Tok.getLiteralData());
+    E = Actions.actOnIntegerLiteral(Tok.getLocation(), Tok.getLiteralData());
     advance();
   } else if (Tok.is(tok::identifier)) {
     Decl *D;
@@ -717,10 +650,8 @@ bool Parser::parseFactor(Expr *&E) {
       return _errorhandler();
     if (Tok.is(tok::l_paren)) {
       advance();
-      if (Tok.isOneOf(tok::l_paren, tok::plus,
-                      tok::minus, tok::kw_NOT,
-                      tok::identifier,
-                      tok::integer_literal)) {
+      if (Tok.isOneOf(tok::l_paren, tok::plus, tok::minus, tok::kw_NOT,
+                      tok::identifier, tok::integer_literal)) {
         if (parseExpList(Exprs))
           return _errorhandler();
       }
@@ -754,21 +685,16 @@ bool Parser::parseFactor(Expr *&E) {
 
 bool Parser::parseSelectors(Expr *&E) {
   auto _errorhandler = [this] {
-    return skipUntil(
-        tok::hash, tok::r_paren, tok::star, tok::plus,
-        tok::comma, tok::minus, tok::slash,
-        tok::colonequal, tok::semi, tok::less,
-        tok::lessequal, tok::equal, tok::greater,
-        tok::greaterequal, tok::kw_AND, tok::kw_DIV,
-        tok::kw_DO, tok::kw_ELSE, tok::kw_END,
-        tok::kw_MOD, tok::kw_OR, tok::kw_THEN,
-        tok::r_square);
+    return skipUntil(tok::hash, tok::r_paren, tok::star, tok::plus, tok::comma,
+                     tok::minus, tok::slash, tok::colonequal, tok::semi,
+                     tok::less, tok::lessequal, tok::equal, tok::greater,
+                     tok::greaterequal, tok::kw_AND, tok::kw_DIV, tok::kw_DO,
+                     tok::kw_ELSE, tok::kw_END, tok::kw_MOD, tok::kw_OR,
+                     tok::kw_THEN, tok::r_square);
   };
-  while (Tok.isOneOf(tok::period, tok::l_square,
-                     tok::caret)) {
+  while (Tok.isOneOf(tok::period, tok::l_square, tok::caret)) {
     if (Tok.is(tok::caret)) {
-      Actions.actOnDereferenceSelector(
-          E, Tok.getLocation());
+      Actions.actOnDereferenceSelector(E, Tok.getLocation());
       advance();
     } else if (Tok.is(tok::l_square)) {
       SMLoc Loc = Tok.getLocation();
@@ -784,8 +710,7 @@ bool Parser::parseSelectors(Expr *&E) {
       advance();
       if (expect(tok::identifier))
         return _errorhandler();
-      Actions.actOnFieldSelector(E, Tok.getLocation(),
-                                 Tok.getIdentifier());
+      Actions.actOnFieldSelector(E, Tok.getLocation(), Tok.getIdentifier());
       advance();
     }
   }
@@ -794,50 +719,42 @@ bool Parser::parseSelectors(Expr *&E) {
 
 bool Parser::parseQualident(Decl *&D) {
   auto _errorhandler = [this] {
-    return skipUntil(
-        tok::hash, tok::l_paren, tok::r_paren,
-        tok::star, tok::plus, tok::comma, tok::minus,
-        tok::period, tok::slash, tok::colonequal,
-        tok::semi, tok::less, tok::lessequal,
-        tok::equal, tok::greater, tok::greaterequal,
-        tok::kw_AND, tok::kw_DIV, tok::kw_DO,
-        tok::kw_ELSE, tok::kw_END, tok::kw_MOD,
-        tok::kw_OR, tok::kw_THEN, tok::l_square,
-        tok::r_square, tok::caret);
+    return skipUntil(tok::hash, tok::l_paren, tok::r_paren, tok::star,
+                     tok::plus, tok::comma, tok::minus, tok::period, tok::slash,
+                     tok::colonequal, tok::semi, tok::less, tok::lessequal,
+                     tok::equal, tok::greater, tok::greaterequal, tok::kw_AND,
+                     tok::kw_DIV, tok::kw_DO, tok::kw_ELSE, tok::kw_END,
+                     tok::kw_MOD, tok::kw_OR, tok::kw_THEN, tok::l_square,
+                     tok::r_square, tok::caret);
   };
   D = nullptr;
   if (expect(tok::identifier))
     return _errorhandler();
-  D = Actions.actOnQualIdentPart(D, Tok.getLocation(),
-                                 Tok.getIdentifier());
+  D = Actions.actOnQualIdentPart(D, Tok.getLocation(), Tok.getIdentifier());
   advance();
-  while (Tok.is(tok::period) &&
-         (isa<ModuleDeclaration>(D))) {
+  while (Tok.is(tok::period) && (isa<ModuleDeclaration>(D))) {
     advance();
     if (expect(tok::identifier))
       return _errorhandler();
-    D = Actions.actOnQualIdentPart(D, Tok.getLocation(),
-                                   Tok.getIdentifier());
+    D = Actions.actOnQualIdentPart(D, Tok.getLocation(), Tok.getIdentifier());
     advance();
   }
   return false;
 }
 
 bool Parser::parseIdentList(IdentList &Ids) {
-  auto _errorhandler = [this] {
-    return skipUntil(tok::colon, tok::semi);
-  };
+  auto _errorhandler = [this] { return skipUntil(tok::colon, tok::semi); };
   if (expect(tok::identifier))
     return _errorhandler();
-  Ids.push_back(std::pair<SMLoc, StringRef>(
-      Tok.getLocation(), Tok.getIdentifier()));
+  Ids.push_back(
+      std::pair<SMLoc, StringRef>(Tok.getLocation(), Tok.getIdentifier()));
   advance();
   while (Tok.is(tok::comma)) {
     advance();
     if (expect(tok::identifier))
       return _errorhandler();
-    Ids.push_back(std::pair<SMLoc, StringRef>(
-        Tok.getLocation(), Tok.getIdentifier()));
+    Ids.push_back(
+        std::pair<SMLoc, StringRef>(Tok.getLocation(), Tok.getIdentifier()));
     advance();
   }
   return false;

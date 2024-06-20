@@ -9,10 +9,9 @@ using namespace llvm;
 
 class CodeGen {
 public:
-  void compileToIR(
-      AST *Tree, Module *M, StringMap<size_t> &JITtedFunctions);
-  void prepareCalculationCallFunc(
-      AST *FuncCall, Module *M, llvm::StringRef FnName,
-      StringMap<size_t> &JITtedFunctions);
+  void compileToIR(AST *Tree, Module *M, StringMap<size_t> &JITtedFunctions);
+  void prepareCalculationCallFunc(AST *FuncCall, Module *M,
+                                  llvm::StringRef FnName,
+                                  StringMap<size_t> &JITtedFunctions);
 };
 #endif

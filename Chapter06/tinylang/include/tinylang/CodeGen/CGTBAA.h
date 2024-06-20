@@ -18,16 +18,13 @@ class CGTBAA {
   // The root node of the TBAA hierarchy
   llvm::MDNode *Root;
 
-  llvm::DenseMap<TypeDeclaration *, llvm::MDNode *>
-      MetadataCache;
+  llvm::DenseMap<TypeDeclaration *, llvm::MDNode *> MetadataCache;
 
-  llvm::MDNode *createScalarTypeNode(TypeDeclaration *Ty,
-                                     StringRef Name,
+  llvm::MDNode *createScalarTypeNode(TypeDeclaration *Ty, StringRef Name,
                                      llvm::MDNode *Parent);
   llvm::MDNode *createStructTypeNode(
       TypeDeclaration *Ty, StringRef Name,
-      llvm::ArrayRef<std::pair<llvm::MDNode *, uint64_t>>
-          Fields);
+      llvm::ArrayRef<std::pair<llvm::MDNode *, uint64_t>> Fields);
 
 public:
   CGTBAA(CGModule &CGM);

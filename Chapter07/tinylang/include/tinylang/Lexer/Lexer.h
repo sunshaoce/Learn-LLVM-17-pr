@@ -14,15 +14,13 @@ namespace tinylang {
 class KeywordFilter {
   llvm::StringMap<tok::TokenKind> HashTable;
 
-  void addKeyword(StringRef Keyword,
-                  tok::TokenKind TokenCode);
+  void addKeyword(StringRef Keyword, tok::TokenKind TokenCode);
 
 public:
   void addKeywords();
 
-  tok::TokenKind getKeyword(
-      StringRef Name,
-      tok::TokenKind DefaultTokenCode = tok::unknown) {
+  tok::TokenKind getKeyword(StringRef Name,
+                            tok::TokenKind DefaultTokenCode = tok::unknown) {
     auto Result = HashTable.find(Name);
     if (Result != HashTable.end())
       return Result->second;
@@ -52,9 +50,7 @@ public:
     Keywords.addKeywords();
   }
 
-  DiagnosticsEngine &getDiagnostics() const {
-    return Diags;
-  }
+  DiagnosticsEngine &getDiagnostics() const { return Diags; }
 
   /// Returns the next token from the input.
   void next(Token &Result);
@@ -70,8 +66,7 @@ private:
 
   SMLoc getLoc() { return SMLoc::getFromPointer(CurPtr); }
 
-  void formToken(Token &Result, const char *TokEnd,
-                 tok::TokenKind Kind);
+  void formToken(Token &Result, const char *TokEnd, tok::TokenKind Kind);
 };
 } // namespace tinylang
 #endif

@@ -18,9 +18,7 @@ class Parser {
 
   Token Tok;
 
-  DiagnosticsEngine &getDiagnostics() const {
-    return Lex.getDiagnostics();
-  }
+  DiagnosticsEngine &getDiagnostics() const { return Lex.getDiagnostics(); }
 
   void advance() { Lex.next(Tok); }
 
@@ -29,14 +27,11 @@ class Parser {
       return false;
     }
     // There must be a better way!
-    const char *Expected =
-        tok::getPunctuatorSpelling(ExpectedTok);
+    const char *Expected = tok::getPunctuatorSpelling(ExpectedTok);
     if (!Expected)
       Expected = tok::getKeywordSpelling(ExpectedTok);
-    llvm::StringRef Actual(Tok.getLocation().getPointer(),
-                           Tok.getLength());
-    getDiagnostics().report(Tok.getLocation(),
-                            diag::err_expected, Expected,
+    llvm::StringRef Actual(Tok.getLocation().getPointer(), Tok.getLength());
+    getDiagnostics().report(Tok.getLocation(), diag::err_expected, Expected,
                             Actual);
     return true;
   }
@@ -49,8 +44,7 @@ class Parser {
     return true;
   }
 
-  template <typename... Tokens>
-  bool skipUntil(Tokens &&...Toks) {
+  template <typename... Tokens> bool skipUntil(Tokens &&...Toks) {
     while (true) {
       if ((... || Tok.is(Toks)))
         return false;
@@ -71,8 +65,7 @@ class Parser {
   bool parseField(FieldList &Fields);
   bool parseVariableDeclaration(DeclList &Decls);
   bool parseProcedureDeclaration(DeclList &ParentDecls);
-  bool parseFormalParameters(FormalParamList &Params,
-                             Decl *&RetType);
+  bool parseFormalParameters(FormalParamList &Params, Decl *&RetType);
   bool parseFormalParameterList(FormalParamList &Params);
   bool parseFormalParameter(FormalParamList &Params);
   bool parseStatementSequence(StmtList &Stmts);

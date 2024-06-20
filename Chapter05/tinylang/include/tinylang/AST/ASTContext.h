@@ -17,9 +17,7 @@ public:
   StringRef getFilename() { return Filename; }
 
   llvm::SourceMgr &getSourceMgr() { return SrcMgr; }
-  const llvm::SourceMgr &getSourceMgr() const {
-    return SrcMgr;
-  }
+  const llvm::SourceMgr &getSourceMgr() const { return SrcMgr; }
 };
 
 } // namespace tinylang

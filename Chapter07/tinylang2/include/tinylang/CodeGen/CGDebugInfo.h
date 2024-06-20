@@ -16,8 +16,7 @@ class CGDebugInfo {
   llvm::DIBuilder DBuilder;
   llvm::DICompileUnit *CU;
 
-  llvm::DenseMap<TypeDeclaration *, llvm::DIType *>
-      TypeCache;
+  llvm::DenseMap<TypeDeclaration *, llvm::DIType *> TypeCache;
 
   llvm::SmallVector<llvm::DIScope *, 4> ScopeStack;
 
@@ -38,18 +37,13 @@ public:
 
   void closeScope();
 
-  void emitGlobalVariable(VariableDeclaration *Decl,
-                          llvm::GlobalVariable *V);
-  void emitProcedure(ProcedureDeclaration *Decl,
-                     llvm::Function *Fn);
-  void emitProcedureEnd(ProcedureDeclaration *Decl,
-                        llvm::Function *Fn);
-  llvm::DILocalVariable *
-  emitParameterVariable(FormalParameterDeclaration *FP,
-                        size_t Idx, llvm::Value *Val,
-                        llvm::BasicBlock *BB);
-  void emitValue(llvm::Value *Val,
-                 llvm::DILocalVariable *Var, SMLoc Loc,
+  void emitGlobalVariable(VariableDeclaration *Decl, llvm::GlobalVariable *V);
+  void emitProcedure(ProcedureDeclaration *Decl, llvm::Function *Fn);
+  void emitProcedureEnd(ProcedureDeclaration *Decl, llvm::Function *Fn);
+  llvm::DILocalVariable *emitParameterVariable(FormalParameterDeclaration *FP,
+                                               size_t Idx, llvm::Value *Val,
+                                               llvm::BasicBlock *BB);
+  void emitValue(llvm::Value *Val, llvm::DILocalVariable *Var, SMLoc Loc,
                  llvm::BasicBlock *BB);
 
   llvm::DebugLoc getDebugLoc(SMLoc Loc);

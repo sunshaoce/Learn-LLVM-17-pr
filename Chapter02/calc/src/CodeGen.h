@@ -3,10 +3,8 @@
 
 #include "AST.h"
 
-class CodeGen
-{
+class CodeGen {
 public:
- void compile(AST *Tree);
-
+  void compile(AST *Tree);
 };
 #endif

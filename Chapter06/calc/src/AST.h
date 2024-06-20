@@ -12,8 +12,8 @@ class WithDecl;
 
 class ASTVisitor {
 public:
-  virtual void visit(AST &){};
-  virtual void visit(Expr &){};
+  virtual void visit(AST &) {};
+  virtual void visit(Expr &) {};
   virtual void visit(Factor &) = 0;
   virtual void visit(BinaryOp &) = 0;
   virtual void visit(WithDecl &) = 0;
@@ -39,13 +39,10 @@ private:
   llvm::StringRef Val;
 
 public:
-  Factor(ValueKind Kind, llvm::StringRef Val)
-      : Kind(Kind), Val(Val) {}
+  Factor(ValueKind Kind, llvm::StringRef Val) : Kind(Kind), Val(Val) {}
   ValueKind getKind() { return Kind; }
   llvm::StringRef getVal() { return Val; }
-  virtual void accept(ASTVisitor &V) override {
-    V.visit(*this);
-  }
+  virtual void accept(ASTVisitor &V) override { V.visit(*this); }
 };
 
 class BinaryOp : public Expr {
@@ -58,14 +55,11 @@ private:
   Operator Op;
 
 public:
-  BinaryOp(Operator Op, Expr *L, Expr *R)
-      : Op(Op), Left(L), Right(R) {}
+  BinaryOp(Operator Op, Expr *L, Expr *R) : Op(Op), Left(L), Right(R) {}
   Expr *getLeft() { return Left; }
   Expr *getRight() { return Right; }
   Operator getOperator() { return Op; }
-  virtual void accept(ASTVisitor &V) override {
-    V.visit(*this);
-  }
+  virtual void accept(ASTVisitor &V) override { V.visit(*this); }
 };
 
 class WithDecl : public AST {
@@ -74,14 +68,11 @@ class WithDecl : public AST {
   Expr *E;
 
 public:
-  WithDecl(llvm::SmallVector<llvm::StringRef, 8> Vars,
-           Expr *E)
+  WithDecl(llvm::SmallVector<llvm::StringRef, 8> Vars, Expr *E)
       : Vars(Vars), E(E) {}
   VarVector::const_iterator begin() { return Vars.begin(); }
   VarVector::const_iterator end() { return Vars.end(); }
   Expr *getExpr() { return E; }
-  virtual void accept(ASTVisitor &V) override {
-    V.visit(*this);
-  }
+  virtual void accept(ASTVisitor &V) override { V.visit(*this); }
 };
 #endif

@@ -36,23 +36,18 @@ public:
   void initialize();
 
   ASTContext &getASTCtx() { return ASTCtx; }
-  llvm::LLVMContext &getLLVMCtx() {
-    return M->getContext();
-  }
+  llvm::LLVMContext &getLLVMCtx() { return M->getContext(); }
   llvm::Module *getModule() { return M; }
   ModuleDeclaration *getModuleDeclaration() { return Mod; }
 
-  void decorateInst(llvm::Instruction *Inst,
-                    TypeDeclaration *Type);
+  void decorateInst(llvm::Instruction *Inst, TypeDeclaration *Type);
 
   llvm::Type *convertType(TypeDeclaration *Ty);
   std::string mangleName(Decl *D);
 
   llvm::GlobalObject *getGlobal(Decl *);
 
-  CGDebugInfo *getDbgInfo() {
-    return DebugInfo.get();
-  }
+  CGDebugInfo *getDbgInfo() { return DebugInfo.get(); }
 
   void applyLocation(llvm::Instruction *Inst, llvm::SMLoc Loc);
 

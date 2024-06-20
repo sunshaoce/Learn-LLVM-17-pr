@@ -26,8 +26,7 @@ class CGProcedure {
   struct BasicBlockDef {
     // Maps the variable (or formal parameter) to its
     // definition.
-    llvm::DenseMap<Decl *, llvm::TrackingVH<llvm::Value>>
-        Defs;
+    llvm::DenseMap<Decl *, llvm::TrackingVH<llvm::Value>> Defs;
     // Set of incompleted phi instructions.
     llvm::DenseMap<llvm::PHINode *, Decl *> IncompletePhis;
     // Block is sealed, that is, no more predecessors will
@@ -37,37 +36,24 @@ class CGProcedure {
     BasicBlockDef() : Sealed(0) {}
   };
 
-  llvm::DenseMap<llvm::BasicBlock *, BasicBlockDef>
-      CurrentDef;
+  llvm::DenseMap<llvm::BasicBlock *, BasicBlockDef> CurrentDef;
 
-  void writeLocalVariable(llvm::BasicBlock *BB, Decl *Decl,
-                          llvm::Value *Val);
-  llvm::Value *readLocalVariable(llvm::BasicBlock *BB,
-                                 Decl *Decl);
-  llvm::Value *
-  readLocalVariableRecursive(llvm::BasicBlock *BB,
-                             Decl *Decl);
-  llvm::PHINode *addEmptyPhi(llvm::BasicBlock *BB,
-                             Decl *Decl);
-  llvm::Value *addPhiOperands(llvm::BasicBlock *BB,
-                              Decl *Decl,
+  void writeLocalVariable(llvm::BasicBlock *BB, Decl *Decl, llvm::Value *Val);
+  llvm::Value *readLocalVariable(llvm::BasicBlock *BB, Decl *Decl);
+  llvm::Value *readLocalVariableRecursive(llvm::BasicBlock *BB, Decl *Decl);
+  llvm::PHINode *addEmptyPhi(llvm::BasicBlock *BB, Decl *Decl);
+  llvm::Value *addPhiOperands(llvm::BasicBlock *BB, Decl *Decl,
                               llvm::PHINode *Phi);
   llvm::Value *optimizePhi(llvm::PHINode *Phi);
   void sealBlock(llvm::BasicBlock *BB);
 
-  llvm::DenseMap<FormalParameterDeclaration *,
-                 llvm::Argument *>
-      FormalParams;
+  llvm::DenseMap<FormalParameterDeclaration *, llvm::Argument *> FormalParams;
 
-  void writeVariable(llvm::BasicBlock *BB, Decl *Decl,
-                     llvm::Value *Val);
-  llvm::Value *readVariable(llvm::BasicBlock *BB,
-                            Decl *Decl);
+  void writeVariable(llvm::BasicBlock *BB, Decl *Decl, llvm::Value *Val);
+  llvm::Value *readVariable(llvm::BasicBlock *BB, Decl *Decl);
 
-  llvm::Type *mapType(Decl *Decl,
-                      bool HonorReference = true);
-  llvm::FunctionType *
-  createFunctionType(ProcedureDeclaration *Proc);
+  llvm::Type *mapType(Decl *Decl, bool HonorReference = true);
+  llvm::FunctionType *createFunctionType(ProcedureDeclaration *Proc);
   llvm::Function *createFunction(ProcedureDeclaration *Proc,
                                  llvm::FunctionType *FTy);
 
@@ -90,8 +76,7 @@ protected:
 
 public:
   CGProcedure(CGModule &CGM)
-      : CGM(CGM), Builder(CGM.getLLVMCtx()),
-        Curr(nullptr){};
+      : CGM(CGM), Builder(CGM.getLLVMCtx()), Curr(nullptr) {};
 
   void run(ProcedureDeclaration *Proc);
 };

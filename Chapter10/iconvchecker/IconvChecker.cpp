@@ -18,97 +18,75 @@ class IconvState {
 public:
   bool isOpen() const { return IsOpen; }
 
-  static IconvState getOpened() {
-    return IconvState(true);
-  }
-  static IconvState getClosed() {
-    return IconvState(false);
-  }
+  static IconvState getOpened() { return IconvState(true); }
+  static IconvState getClosed() { return IconvState(false); }
 
-  bool operator==(const IconvState &O) const {
-    return IsOpen == O.IsOpen;
-  }
+  bool operator==(const IconvState &O) const { return IsOpen == O.IsOpen; }
 
-  void Profile(llvm::FoldingSetNodeID &ID) const {
-    ID.AddInteger(IsOpen);
-  }
+  void Profile(llvm::FoldingSetNodeID &ID) const { ID.AddInteger(IsOpen); }
 };
 } // namespace
 
-REGISTER_MAP_WITH_PROGRAMSTATE(IconvStateMap, SymbolRef,
-                               IconvState)
+REGISTER_MAP_WITH_PROGRAMSTATE(IconvStateMap, SymbolRef, IconvState)
 
 namespace {
-class IconvChecker
-    : public Checker<check::PostCall, check::PreCall,
-                     check::DeadSymbols,
-                     check::PointerEscape> {
+class IconvChecker : public Checker<check::PostCall, check::PreCall,
+                                    check::DeadSymbols, check::PointerEscape> {
   CallDescription IconvOpenFn, IconvFn, IconvCloseFn;
 
   std::unique_ptr<BugType> DoubleCloseBugType;
   std::unique_ptr<BugType> LeakBugType;
 
-  void report(ArrayRef<SymbolRef> Syms,
-              const BugType &Bug, StringRef Desc,
+  void report(ArrayRef<SymbolRef> Syms, const BugType &Bug, StringRef Desc,
               CheckerContext &C, ExplodedNode *ErrNode,
-              std::optional<SourceRange> Range =
-                  std::nullopt) const;
+              std::optional<SourceRange> Range = std::nullopt) const;
 
 public:
   IconvChecker();
-  void checkPostCall(const CallEvent &Call,
-                     CheckerContext &C) const;
-  void checkPreCall(const CallEvent &Call,
-                    CheckerContext &C) const;
-  void checkDeadSymbols(SymbolReaper &SymReaper,
-                        CheckerContext &C) const;
-  ProgramStateRef
-  checkPointerEscape(ProgramStateRef State,
-                     const InvalidatedSymbols &Escaped,
-                     const CallEvent *Call,
-                     PointerEscapeKind Kind) const;
+  void checkPostCall(const CallEvent &Call, CheckerContext &C) const;
+  void checkPreCall(const CallEvent &Call, CheckerContext &C) const;
+  void checkDeadSymbols(SymbolReaper &SymReaper, CheckerContext &C) const;
+  ProgramStateRef checkPointerEscape(ProgramStateRef State,
+                                     const InvalidatedSymbols &Escaped,
+                                     const CallEvent *Call,
+                                     PointerEscapeKind Kind) const;
 };
 } // namespace
 
 IconvChecker::IconvChecker()
     : IconvOpenFn({"iconv_open"}), IconvFn({"iconv"}),
       IconvCloseFn({"iconv_close"}, 1) {
-  DoubleCloseBugType.reset(new BugType(
-      this, "Double iconv_close", "Iconv API Error"));
+  DoubleCloseBugType.reset(
+      new BugType(this, "Double iconv_close", "Iconv API Error"));
 
-  LeakBugType.reset(new BugType(
-      this, "Resource Leak", "Iconv API Error",
-      /*SuppressOnSink=*/true));
+  LeakBugType.reset(new BugType(this, "Resource Leak", "Iconv API Error",
+                                /*SuppressOnSink=*/true));
 }
 
-void IconvChecker::checkPostCall(
-    const CallEvent &Call, CheckerContext &C) const {
+void IconvChecker::checkPostCall(const CallEvent &Call,
+                                 CheckerContext &C) const {
   if (!Call.isGlobalCFunction())
     return;
   if (!IconvOpenFn.matches(Call))
     return;
-  if (SymbolRef Handle =
-          Call.getReturnValue().getAsSymbol()) {
+  if (SymbolRef Handle = Call.getReturnValue().getAsSymbol()) {
     ProgramStateRef State = C.getState();
-    State = State->set<IconvStateMap>(
-        Handle, IconvState::getOpened());
+    State = State->set<IconvStateMap>(Handle, IconvState::getOpened());
     C.addTransition(State);
   }
 }
 
-void IconvChecker::checkPreCall(
-    const CallEvent &Call, CheckerContext &C) const {
+void IconvChecker::checkPreCall(const CallEvent &Call,
+                                CheckerContext &C) const {
   if (!Call.isGlobalCFunction()) {
     return;
   }
   if (!IconvCloseFn.matches(Call)) {
     return;
   }
-  if (SymbolRef Handle =
-          Call.getArgSVal(0).getAsSymbol()) {
+  if (SymbolRef Handle = Call.getArgSVal(0).getAsSymbol()) {
     ProgramStateRef State = C.getState();
-    if (const IconvState *St =
-            State->get<IconvStateMap>(Handle)) {
+    if (const IconvState *St = State->get<IconvStateMap>(Handle)) {
       if (!St->isOpen()) {
         if (ExplodedNode *N = C.generateErrorNode()) {
           report(Handle, *DoubleCloseBugType,
@@ -120,14 +98,13 @@ void IconvChecker::checkPreCall(
       }
     }
 
-    State = State->set<IconvStateMap>(
-        Handle, IconvState::getClosed());
+    State = State->set<IconvStateMap>(Handle, IconvState::getClosed());
     C.addTransition(State);
   }
 }
 
-void IconvChecker::checkDeadSymbols(
-    SymbolReaper &SymReaper, CheckerContext &C) const {
+void IconvChecker::checkDeadSymbols(SymbolReaper &SymReaper,
+                                    CheckerContext &C) const {
   ProgramStateRef State = C.getState();
   SmallVector<SymbolRef, 8> LeakedSyms;
   for (auto [Sym, St] : State->get<IconvStateMap>()) {
@@ -135,8 +112,7 @@ void IconvChecker::checkDeadSymbols(
       if (St.isOpen()) {
         bool IsLeaked = true;
         if (const llvm::APSInt *Val =
-                State->getConstraintManager().getSymVal(
-                    State, Sym))
+                State->getConstraintManager().getSymVal(State, Sym))
           IsLeaked = Val->getExtValue() != -1;
         if (IsLeaked)
           LeakedSyms.push_back(Sym);
@@ -145,24 +121,19 @@ void IconvChecker::checkDeadSymbols(
     }
   }
 
-  if (ExplodedNode *N =
-          C.generateNonFatalErrorNode(State)) {
-    report(LeakedSyms, *LeakBugType,
-           "Opened iconv descriptor not closed", C, N);
+  if (ExplodedNode *N = C.generateNonFatalErrorNode(State)) {
+    report(LeakedSyms, *LeakBugType, "Opened iconv descriptor not closed", C,
+           N);
   }
 }
 
 ProgramStateRef IconvChecker::checkPointerEscape(
-    ProgramStateRef State,
-    const InvalidatedSymbols &Escaped,
-    const CallEvent *Call,
-    PointerEscapeKind Kind) const {
+    ProgramStateRef State, const InvalidatedSymbols &Escaped,
+    const CallEvent *Call, PointerEscapeKind Kind) const {
   if (Kind == PSK_DirectEscapeOnCall) {
-    if (IconvFn.matches(*Call) ||
-        IconvCloseFn.matches(*Call))
+    if (IconvFn.matches(*Call) || IconvCloseFn.matches(*Call))
       return State;
-    if (Call->isInSystemHeader() ||
-        !Call->argumentsMayEscape())
+    if (Call->isInSystemHeader() || !Call->argumentsMayEscape())
       return State;
   }
 
@@ -171,14 +142,12 @@ ProgramStateRef IconvChecker::checkPointerEscape(
   return State;
 }
 
-void IconvChecker::report(
-    ArrayRef<SymbolRef> Syms, const BugType &Bug,
-    StringRef Desc, CheckerContext &C,
-    ExplodedNode *ErrNode,
-    std::optional<SourceRange> Range) const {
+void IconvChecker::report(ArrayRef<SymbolRef> Syms, const BugType &Bug,
+                          StringRef Desc, CheckerContext &C,
+                          ExplodedNode *ErrNode,
+                          std::optional<SourceRange> Range) const {
   for (SymbolRef Sym : Syms) {
-    auto R = std::make_unique<PathSensitiveBugReport>(
-        Bug, Desc, ErrNode);
+    auto R = std::make_unique<PathSensitiveBugReport>(Bug, Desc, ErrNode);
     R->markInteresting(Sym);
     if (Range)
       R->addRange(*Range);
@@ -186,11 +155,9 @@ void IconvChecker::report(
   }
 }
 
-extern "C" void
-clang_registerCheckers(CheckerRegistry &registry) {
-  registry.addChecker<IconvChecker>(
-      "unix.IconvChecker",
-      "Check handling of iconv functions", "");
+extern "C" void clang_registerCheckers(CheckerRegistry &registry) {
+  registry.addChecker<IconvChecker>("unix.IconvChecker",
+                                    "Check handling of iconv functions", "");
 }
 
 extern "C" const char clang_analyzerAPIVersionString[] =

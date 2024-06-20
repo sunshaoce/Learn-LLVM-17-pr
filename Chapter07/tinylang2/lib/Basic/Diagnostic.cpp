@@ -13,12 +13,10 @@ SourceMgr::DiagKind DiagnosticKind[] = {
 };
 } // namespace
 
-const char *
-DiagnosticsEngine::getDiagnosticText(unsigned DiagID) {
+const char *DiagnosticsEngine::getDiagnosticText(unsigned DiagID) {
   return DiagnosticText[DiagID];
 }
 
-SourceMgr::DiagKind
-DiagnosticsEngine::getDiagnosticKind(unsigned DiagID) {
+SourceMgr::DiagKind DiagnosticsEngine::getDiagnosticKind(unsigned DiagID) {
   return DiagnosticKind[DiagID];
 }

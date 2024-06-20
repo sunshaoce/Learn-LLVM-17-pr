@@ -1,6 +1,3 @@
 #include <stdio.h>
 
-void greetings() {
-  puts("Hi!");
-}
-
+void greetings() { puts("Hi!"); }

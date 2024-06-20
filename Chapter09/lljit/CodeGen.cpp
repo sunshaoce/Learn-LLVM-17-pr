@@ -16,8 +16,7 @@ class ToIRVisitor : public ASTVisitor {
   StringMap<Value *> nameMap;
 
 public:
-  ToIRVisitor(Module *M,
-              StringMap<size_t> &JITtedFunctions)
+  ToIRVisitor(Module *M, StringMap<size_t> &JITtedFunctions)
       : M(M), Builder(M->getContext()), JITtedFunctionsMap(JITtedFunctions) {
     Int32Ty = Type::getInt32Ty(M->getContext());
   }

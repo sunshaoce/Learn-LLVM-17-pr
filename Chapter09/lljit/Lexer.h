@@ -33,14 +33,10 @@ private:
 
 public:
   TokenKind getKind() const { return Kind; }
-  llvm::StringRef getText() const {
-    return Text;
-  }
+  llvm::StringRef getText() const { return Text; }
 
   bool is(TokenKind K) const { return Kind == K; }
-  bool isOneOf(TokenKind K1, TokenKind K2) const {
-    return is(K1) || is(K2);
-  }
+  bool isOneOf(TokenKind K1, TokenKind K2) const { return is(K1) || is(K2); }
   template <typename... Ts>
   bool isOneOf(TokenKind K1, TokenKind K2, Ts... Ks) const {
     return is(K1) || isOneOf(K2, Ks...);
@@ -61,7 +57,6 @@ public:
   Token::TokenKind peek();
 
 private:
-  void formToken(Token &Result, const char *TokEnd,
-                 Token::TokenKind Kind);
+  void formToken(Token &Result, const char *TokEnd, Token::TokenKind Kind);
 };
 #endif

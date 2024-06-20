@@ -8,19 +8,16 @@ using namespace tinylang;
 
 int main(int argc_, const char **argv_) {
   llvm::InitLLVM X(argc_, argv_);
-  llvm::SmallVector<const char *, 256> argv(argv_ + 1,
-                                            argv_ + argc_);
+  llvm::SmallVector<const char *, 256> argv(argv_ + 1, argv_ + argc_);
 
-  llvm::outs() << "Tinylang "
-               << tinylang::getTinylangVersion() << "\n";
+  llvm::outs() << "Tinylang " << tinylang::getTinylangVersion() << "\n";
 
   for (const char *F : argv) {
-    llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>>
-        FileOrErr = llvm::MemoryBuffer::getFile(F);
-    if (std::error_code BufferError =
-            FileOrErr.getError()) {
-      llvm::errs() << "Error reading " << F << ": "
-                   << BufferError.message() << "\n";
+    llvm::ErrorOr<std::unique_ptr<llvm::MemoryBuffer>> FileOrErr =
+        llvm::MemoryBuffer::getFile(F);
+    if (std::error_code BufferError = FileOrErr.getError()) {
+      llvm::errs() << "Error reading " << F << ": " << BufferError.message()
+                   << "\n";
       continue;
     }
 
@@ -29,8 +26,7 @@ int main(int argc_, const char **argv_) {
 
     // Tell SrcMgr about this buffer, which is what the
     // parser will pick up.
-    SrcMgr.AddNewSourceBuffer(std::move(*FileOrErr),
-                              llvm::SMLoc());
+    SrcMgr.AddNewSourceBuffer(std::move(*FileOrErr), llvm::SMLoc());
 
     auto TheLexer = Lexer(SrcMgr, Diags);
     auto TheSema = Sema(Diags);

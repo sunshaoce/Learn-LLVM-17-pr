@@ -17,8 +17,7 @@ class Expr;
 class Stmt;
 
 using DeclList = std::vector<Decl *>;
-using FormalParamList =
-    std::vector<FormalParameterDeclaration *>;
+using FormalParamList = std::vector<FormalParameterDeclaration *>;
 using ExprList = std::vector<Expr *>;
 using StmtList = std::vector<Stmt *>;
 
@@ -27,8 +26,7 @@ class Ident {
   StringRef Name;
 
 public:
-  Ident(SMLoc Loc, const StringRef &Name)
-      : Loc(Loc), Name(Name) {}
+  Ident(SMLoc Loc, const StringRef &Name) : Loc(Loc), Name(Name) {}
   SMLoc getLocation() { return Loc; }
   const StringRef &getName() { return Name; }
 };
@@ -37,14 +35,7 @@ using IdentList = std::vector<std::pair<SMLoc, StringRef>>;
 
 class Decl {
 public:
-  enum DeclKind {
-    DK_Module,
-    DK_Const,
-    DK_Type,
-    DK_Var,
-    DK_Param,
-    DK_Proc
-  };
+  enum DeclKind { DK_Module, DK_Const, DK_Type, DK_Var, DK_Param, DK_Proc };
 
 private:
   const DeclKind Kind;
@@ -55,10 +46,8 @@ protected:
   StringRef Name;
 
 public:
-  Decl(DeclKind Kind, Decl *EnclosingDecL, SMLoc Loc,
-       StringRef Name)
-      : Kind(Kind), EnclosingDecL(EnclosingDecL), Loc(Loc),
-        Name(Name) {}
+  Decl(DeclKind Kind, Decl *EnclosingDecL, SMLoc Loc, StringRef Name)
+      : Kind(Kind), EnclosingDecL(EnclosingDecL), Loc(Loc), Name(Name) {}
 
   DeclKind getKind() const { return Kind; }
   SMLoc getLocation() { return Loc; }
@@ -71,65 +60,52 @@ class ModuleDeclaration : public Decl {
   StmtList Stmts;
 
 public:
-  ModuleDeclaration(Decl *EnclosingDecL, SMLoc Loc,
-                    StringRef Name)
+  ModuleDeclaration(Decl *EnclosingDecL, SMLoc Loc, StringRef Name)
       : Decl(DK_Module, EnclosingDecL, Loc, Name) {}
 
-  ModuleDeclaration(Decl *EnclosingDecL, SMLoc Loc,
-                    StringRef Name, DeclList &Decls,
-                    StmtList &Stmts)
-      : Decl(DK_Module, EnclosingDecL, Loc, Name),
-        Decls(Decls), Stmts(Stmts) {}
+  ModuleDeclaration(Decl *EnclosingDecL, SMLoc Loc, StringRef Name,
+                    DeclList &Decls, StmtList &Stmts)
+      : Decl(DK_Module, EnclosingDecL, Loc, Name), Decls(Decls), Stmts(Stmts) {}
 
   const DeclList &getDecls() { return Decls; }
   void setDecls(DeclList &D) { Decls = D; }
   const StmtList &getStmts() { return Stmts; }
   void setStmts(StmtList &L) { Stmts = L; }
 
-  static bool classof(const Decl *D) {
-    return D->getKind() == DK_Module;
-  }
+  static bool classof(const Decl *D) { return D->getKind() == DK_Module; }
 };
 
 class ConstantDeclaration : public Decl {
   Expr *E;
 
 public:
-  ConstantDeclaration(Decl *EnclosingDecL, SMLoc Loc,
-                      StringRef Name, Expr *E)
+  ConstantDeclaration(Decl *EnclosingDecL, SMLoc Loc, StringRef Name, Expr *E)
       : Decl(DK_Const, EnclosingDecL, Loc, Name), E(E) {}
 
   Expr *getExpr() { return E; }
 
-  static bool classof(const Decl *D) {
-    return D->getKind() == DK_Const;
-  }
+  static bool classof(const Decl *D) { return D->getKind() == DK_Const; }
 };
 
 class TypeDeclaration : public Decl {
 public:
-  TypeDeclaration(Decl *EnclosingDecL, SMLoc Loc,
-                  StringRef Name)
+  TypeDeclaration(Decl *EnclosingDecL, SMLoc Loc, StringRef Name)
       : Decl(DK_Type, EnclosingDecL, Loc, Name) {}
 
-  static bool classof(const Decl *D) {
-    return D->getKind() == DK_Type;
-  }
+  static bool classof(const Decl *D) { return D->getKind() == DK_Type; }
 };
 
 class VariableDeclaration : public Decl {
   TypeDeclaration *Ty;
 
 public:
-  VariableDeclaration(Decl *EnclosingDecL, SMLoc Loc,
-                      StringRef Name, TypeDeclaration *Ty)
+  VariableDeclaration(Decl *EnclosingDecL, SMLoc Loc, StringRef Name,
+                      TypeDeclaration *Ty)
       : Decl(DK_Var, EnclosingDecL, Loc, Name), Ty(Ty) {}
 
   TypeDeclaration *getType() { return Ty; }
 
-  static bool classof(const Decl *D) {
-    return D->getKind() == DK_Var;
-  }
+  static bool classof(const Decl *D) { return D->getKind() == DK_Var; }
 };
 
 class FormalParameterDeclaration : public Decl {
@@ -137,19 +113,14 @@ class FormalParameterDeclaration : public Decl {
   bool IsVar;
 
 public:
-  FormalParameterDeclaration(Decl *EnclosingDecL, SMLoc Loc,
-                             StringRef Name,
-                             TypeDeclaration *Ty,
-                             bool IsVar)
-      : Decl(DK_Param, EnclosingDecL, Loc, Name), Ty(Ty),
-        IsVar(IsVar) {}
+  FormalParameterDeclaration(Decl *EnclosingDecL, SMLoc Loc, StringRef Name,
+                             TypeDeclaration *Ty, bool IsVar)
+      : Decl(DK_Param, EnclosingDecL, Loc, Name), Ty(Ty), IsVar(IsVar) {}
 
   TypeDeclaration *getType() { return Ty; }
   bool isVar() { return IsVar; }
 
-  static bool classof(const Decl *D) {
-    return D->getKind() == DK_Param;
-  }
+  static bool classof(const Decl *D) { return D->getKind() == DK_Param; }
 };
 
 class ProcedureDeclaration : public Decl {
@@ -159,22 +130,16 @@ class ProcedureDeclaration : public Decl {
   StmtList Stmts;
 
 public:
-  ProcedureDeclaration(Decl *EnclosingDecL, SMLoc Loc,
-                       StringRef Name)
+  ProcedureDeclaration(Decl *EnclosingDecL, SMLoc Loc, StringRef Name)
       : Decl(DK_Proc, EnclosingDecL, Loc, Name) {}
 
-  ProcedureDeclaration(Decl *EnclosingDecL, SMLoc Loc,
-                       StringRef Name,
-                       FormalParamList &Params,
-                       TypeDeclaration *RetType,
+  ProcedureDeclaration(Decl *EnclosingDecL, SMLoc Loc, StringRef Name,
+                       FormalParamList &Params, TypeDeclaration *RetType,
                        DeclList &Decls, StmtList &Stmts)
-      : Decl(DK_Proc, EnclosingDecL, Loc, Name),
-        Params(Params), RetType(RetType), Decls(Decls),
-        Stmts(Stmts) {}
+      : Decl(DK_Proc, EnclosingDecL, Loc, Name), Params(Params),
+        RetType(RetType), Decls(Decls), Stmts(Stmts) {}
 
-  const FormalParamList &getFormalParams() {
-    return Params;
-  }
+  const FormalParamList &getFormalParams() { return Params; }
   void setFormalParams(FormalParamList &FP) { Params = FP; }
   TypeDeclaration *getRetType() { return RetType; }
   void setRetType(TypeDeclaration *Ty) { RetType = Ty; }
@@ -184,9 +149,7 @@ public:
   const StmtList &getStmts() { return Stmts; }
   void setStmts(StmtList &L) { Stmts = L; }
 
-  static bool classof(const Decl *D) {
-    return D->getKind() == DK_Proc;
-  }
+  static bool classof(const Decl *D) { return D->getKind() == DK_Proc; }
 };
 
 class OperatorInfo {
@@ -195,17 +158,12 @@ class OperatorInfo {
   uint32_t IsUnspecified : 1;
 
 public:
-  OperatorInfo()
-      : Loc(), Kind(tok::unknown), IsUnspecified(true) {}
-  OperatorInfo(SMLoc Loc, tok::TokenKind Kind,
-               bool IsUnspecified = false)
-      : Loc(Loc), Kind(Kind), IsUnspecified(IsUnspecified) {
-  }
+  OperatorInfo() : Loc(), Kind(tok::unknown), IsUnspecified(true) {}
+  OperatorInfo(SMLoc Loc, tok::TokenKind Kind, bool IsUnspecified = false)
+      : Loc(Loc), Kind(Kind), IsUnspecified(IsUnspecified) {}
 
   SMLoc getLocation() const { return Loc; }
-  tok::TokenKind getKind() const {
-    return static_cast<tok::TokenKind>(Kind);
-  }
+  tok::TokenKind getKind() const { return static_cast<tok::TokenKind>(Kind); }
   bool isUnspecified() const { return IsUnspecified; }
 };
 
@@ -243,18 +201,15 @@ class InfixExpression : public Expr {
   const OperatorInfo Op;
 
 public:
-  InfixExpression(Expr *Left, Expr *Right, OperatorInfo Op,
-                  TypeDeclaration *Ty, bool IsConst)
-      : Expr(EK_Infix, Ty, IsConst), Left(Left),
-        Right(Right), Op(Op) {}
+  InfixExpression(Expr *Left, Expr *Right, OperatorInfo Op, TypeDeclaration *Ty,
+                  bool IsConst)
+      : Expr(EK_Infix, Ty, IsConst), Left(Left), Right(Right), Op(Op) {}
 
   Expr *getLeft() { return Left; }
   Expr *getRight() { return Right; }
   const OperatorInfo &getOperatorInfo() { return Op; }
 
-  static bool classof(const Expr *E) {
-    return E->getKind() == EK_Infix;
-  }
+  static bool classof(const Expr *E) { return E->getKind() == EK_Infix; }
 };
 
 class PrefixExpression : public Expr {
@@ -262,16 +217,13 @@ class PrefixExpression : public Expr {
   const OperatorInfo Op;
 
 public:
-  PrefixExpression(Expr *E, OperatorInfo Op,
-                   TypeDeclaration *Ty, bool IsConst)
+  PrefixExpression(Expr *E, OperatorInfo Op, TypeDeclaration *Ty, bool IsConst)
       : Expr(EK_Prefix, Ty, IsConst), E(E), Op(Op) {}
 
   Expr *getExpr() { return E; }
   const OperatorInfo &getOperatorInfo() { return Op; }
 
-  static bool classof(const Expr *E) {
-    return E->getKind() == EK_Prefix;
-  }
+  static bool classof(const Expr *E) { return E->getKind() == EK_Prefix; }
 };
 
 class IntegerLiteral : public Expr {
@@ -279,14 +231,11 @@ class IntegerLiteral : public Expr {
   llvm::APSInt Value;
 
 public:
-  IntegerLiteral(SMLoc Loc, const llvm::APSInt &Value,
-                 TypeDeclaration *Ty)
+  IntegerLiteral(SMLoc Loc, const llvm::APSInt &Value, TypeDeclaration *Ty)
       : Expr(EK_Int, Ty, true), Loc(Loc), Value(Value) {}
   llvm::APSInt &getValue() { return Value; }
 
-  static bool classof(const Expr *E) {
-    return E->getKind() == EK_Int;
-  }
+  static bool classof(const Expr *E) { return E->getKind() == EK_Int; }
 };
 
 class BooleanLiteral : public Expr {
@@ -297,9 +246,7 @@ public:
       : Expr(EK_Bool, Ty, true), Value(Value) {}
   bool getValue() { return Value; }
 
-  static bool classof(const Expr *E) {
-    return E->getKind() == EK_Bool;
-  }
+  static bool classof(const Expr *E) { return E->getKind() == EK_Bool; }
 };
 
 class VariableAccess : public Expr {
@@ -313,9 +260,7 @@ public:
 
   Decl *getDecl() { return Var; }
 
-  static bool classof(const Expr *E) {
-    return E->getKind() == EK_Var;
-  }
+  static bool classof(const Expr *E) { return E->getKind() == EK_Var; }
 };
 
 class ConstantAccess : public Expr {
@@ -323,14 +268,11 @@ class ConstantAccess : public Expr {
 
 public:
   ConstantAccess(ConstantDeclaration *Const)
-      : Expr(EK_Const, Const->getExpr()->getType(), true),
-        Const(Const) {}
+      : Expr(EK_Const, Const->getExpr()->getType(), true), Const(Const) {}
 
   ConstantDeclaration *getDecl() { return Const; }
 
-  static bool classof(const Expr *E) {
-    return E->getKind() == EK_Const;
-  }
+  static bool classof(const Expr *E) { return E->getKind() == EK_Const; }
 };
 
 class FunctionCallExpr : public Expr {
@@ -338,28 +280,18 @@ class FunctionCallExpr : public Expr {
   ExprList Params;
 
 public:
-  FunctionCallExpr(ProcedureDeclaration *Proc,
-                   ExprList Params)
-      : Expr(EK_Func, Proc->getRetType(), false),
-        Proc(Proc), Params(Params) {}
+  FunctionCallExpr(ProcedureDeclaration *Proc, ExprList Params)
+      : Expr(EK_Func, Proc->getRetType(), false), Proc(Proc), Params(Params) {}
 
   ProcedureDeclaration *geDecl() { return Proc; }
   const ExprList &getParams() { return Params; }
 
-  static bool classof(const Expr *E) {
-    return E->getKind() == EK_Func;
-  }
+  static bool classof(const Expr *E) { return E->getKind() == EK_Func; }
 };
 
 class Stmt {
 public:
-  enum StmtKind {
-    SK_Assign,
-    SK_ProcCall,
-    SK_If,
-    SK_While,
-    SK_Return
-  };
+  enum StmtKind { SK_Assign, SK_ProcCall, SK_If, SK_While, SK_Return };
 
 private:
   const StmtKind Kind;
@@ -376,15 +308,12 @@ class AssignmentStatement : public Stmt {
   Expr *E;
 
 public:
-  AssignmentStatement(Decl *Var, Expr *E)
-      : Stmt(SK_Assign), Var(Var), E(E) {}
+  AssignmentStatement(Decl *Var, Expr *E) : Stmt(SK_Assign), Var(Var), E(E) {}
 
   Decl *getVar() { return Var; }
   Expr *getExpr() { return E; }
 
-  static bool classof(const Stmt *S) {
-    return S->getKind() == SK_Assign;
-  }
+  static bool classof(const Stmt *S) { return S->getKind() == SK_Assign; }
 };
 
 class ProcedureCallStatement : public Stmt {
@@ -392,16 +321,13 @@ class ProcedureCallStatement : public Stmt {
   ExprList Params;
 
 public:
-  ProcedureCallStatement(ProcedureDeclaration *Proc,
-                         ExprList &Params)
+  ProcedureCallStatement(ProcedureDeclaration *Proc, ExprList &Params)
       : Stmt(SK_ProcCall), Proc(Proc), Params(Params) {}
 
   ProcedureDeclaration *getProc() { return Proc; }
   const ExprList &getParams() { return Params; }
 
-  static bool classof(const Stmt *S) {
-    return S->getKind() == SK_ProcCall;
-  }
+  static bool classof(const Stmt *S) { return S->getKind() == SK_ProcCall; }
 };
 
 class IfStatement : public Stmt {
@@ -410,18 +336,14 @@ class IfStatement : public Stmt {
   StmtList ElseStmts;
 
 public:
-  IfStatement(Expr *Cond, StmtList &IfStmts,
-              StmtList &ElseStmts)
-      : Stmt(SK_If), Cond(Cond), IfStmts(IfStmts),
-        ElseStmts(ElseStmts) {}
+  IfStatement(Expr *Cond, StmtList &IfStmts, StmtList &ElseStmts)
+      : Stmt(SK_If), Cond(Cond), IfStmts(IfStmts), ElseStmts(ElseStmts) {}
 
   Expr *getCond() { return Cond; }
   const StmtList &getIfStmts() { return IfStmts; }
   const StmtList &getElseStmts() { return ElseStmts; }
 
-  static bool classof(const Stmt *S) {
-    return S->getKind() == SK_If;
-  }
+  static bool classof(const Stmt *S) { return S->getKind() == SK_If; }
 };
 
 class WhileStatement : public Stmt {
@@ -435,23 +357,18 @@ public:
   Expr *getCond() { return Cond; }
   const StmtList &getWhileStmts() { return Stmts; }
 
-  static bool classof(const Stmt *S) {
-    return S->getKind() == SK_While;
-  }
+  static bool classof(const Stmt *S) { return S->getKind() == SK_While; }
 };
 
 class ReturnStatement : public Stmt {
   Expr *RetVal;
 
 public:
-  ReturnStatement(Expr *RetVal)
-      : Stmt(SK_Return), RetVal(RetVal) {}
+  ReturnStatement(Expr *RetVal) : Stmt(SK_Return), RetVal(RetVal) {}
 
   Expr *getRetVal() { return RetVal; }
 
-  static bool classof(const Stmt *S) {
-    return S->getKind() == SK_Return;
-  }
+  static bool classof(const Stmt *S) { return S->getKind() == SK_Return; }
 };
 
 } // namespace tinylang

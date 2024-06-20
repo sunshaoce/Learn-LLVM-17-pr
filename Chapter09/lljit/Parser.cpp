@@ -54,7 +54,8 @@ AST *Parser::parseCalc() {
       if (expect(Token::number))
         goto _error;
       Vars.push_back(Tok.getText());
-      advance(); }
+      advance();
+    }
     if (consume(Token::r_paren))
       goto _error;
     if (expect(Token::eoi))
@@ -71,9 +72,8 @@ _error:
 Expr *Parser::parseExpr() {
   Expr *Left = parseTerm();
   while (Tok.isOneOf(Token::plus, Token::minus)) {
-    BinaryOp::Operator Op = Tok.is(Token::plus)
-                                ? BinaryOp::Plus
-                                : BinaryOp::Minus;
+    BinaryOp::Operator Op =
+        Tok.is(Token::plus) ? BinaryOp::Plus : BinaryOp::Minus;
     advance();
     Expr *Right = parseTerm();
     Left = new BinaryOp(Op, Left, Right);
@@ -84,8 +84,7 @@ Expr *Parser::parseExpr() {
 Expr *Parser::parseTerm() {
   Expr *Left = parseFactor();
   while (Tok.isOneOf(Token::star, Token::slash)) {
-    BinaryOp::Operator Op =
-        Tok.is(Token::star) ? BinaryOp::Mul : BinaryOp::Div;
+    BinaryOp::Operator Op = Tok.is(Token::star) ? BinaryOp::Mul : BinaryOp::Div;
     advance();
     Expr *Right = parseFactor();
     Left = new BinaryOp(Op, Left, Right);
@@ -98,21 +97,24 @@ Expr *Parser::parseFactor() {
   switch (Tok.getKind()) {
   case Token::number:
     Res = new Factor(Factor::Number, Tok.getText());
-    advance(); break;
+    advance();
+    break;
   case Token::ident:
     Res = new Factor(Factor::Ident, Tok.getText());
-    advance(); break;
+    advance();
+    break;
   case Token::l_paren:
     advance();
     Res = parseExpr();
-    if (!consume(Token::r_paren)) break;
+    if (!consume(Token::r_paren))
+      break;
   case Token::r_paren:
-    advance(); break;
+    advance();
+    break;
   default:
     if (!Res)
       error();
-    while (!Tok.isOneOf(Token::r_paren, Token::star,
-                        Token::plus, Token::minus,
+    while (!Tok.isOneOf(Token::r_paren, Token::star, Token::plus, Token::minus,
                         Token::slash, Token::eoi))
       advance();
   }

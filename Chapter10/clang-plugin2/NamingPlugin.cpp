@@ -7,14 +7,12 @@
 using namespace clang;
 
 namespace {
-class NamingVisitor
-    : public RecursiveASTVisitor<NamingVisitor> {
+class NamingVisitor : public RecursiveASTVisitor<NamingVisitor> {
 private:
   ASTContext &ASTCtx;
 
 public:
-  explicit NamingVisitor(CompilerInstance &CI)
-      : ASTCtx(CI.getASTContext()) {}
+  explicit NamingVisitor(CompilerInstance &CI) : ASTCtx(CI.getASTContext()) {}
 
   virtual bool VisitVarDecl(VarDecl *VD) {
     llvm::errs() << "Name: " << VD->getName() << "\n";
@@ -22,17 +20,14 @@ public:
   }
 
   virtual bool VisitFunctionDecl(FunctionDecl *FD) {
-    std::string Name =
-        FD->getNameInfo().getName().getAsString();
-    assert(Name.length() > 0 &&
-           "Unexpected empty identifier");
+    std::string Name = FD->getNameInfo().getName().getAsString();
+    assert(Name.length() > 0 && "Unexpected empty identifier");
     char &First = Name.at(0);
     if (!(First >= 'a' && First <= 'z')) {
       DiagnosticsEngine &Diag = ASTCtx.getDiagnostics();
-      unsigned ID = Diag.getCustomDiagID(
-          DiagnosticsEngine::Warning,
-          "Function name should start with "
-          "lowercase letter");
+      unsigned ID = Diag.getCustomDiagID(DiagnosticsEngine::Warning,
+                                         "Function name should start with "
+                                         "lowercase letter");
       Diag.Report(FD->getLocation(), ID);
     }
     return true;
@@ -46,18 +41,15 @@ public:
   NamingASTConsumer(CompilerInstance &CI)
       : Visitor(std::make_unique<NamingVisitor>(CI)) {}
 
-  void
-  HandleTranslationUnit(ASTContext &ASTCtx) override {
-    Visitor->TraverseDecl(
-        ASTCtx.getTranslationUnitDecl());
+  void HandleTranslationUnit(ASTContext &ASTCtx) override {
+    Visitor->TraverseDecl(ASTCtx.getTranslationUnitDecl());
   }
 };
 
 class PluginNamingAction : public PluginASTAction {
 public:
-  std::unique_ptr<ASTConsumer>
-  CreateASTConsumer(CompilerInstance &CI,
-                    StringRef file) override {
+  std::unique_ptr<ASTConsumer> CreateASTConsumer(CompilerInstance &CI,
+                                                 StringRef file) override {
     return std::make_unique<NamingASTConsumer>(CI);
   }
 
@@ -73,5 +65,5 @@ public:
 
 } // namespace
 
-static FrontendPluginRegistry::Add<PluginNamingAction>
-    X("naming-plugin", "naming plugin");
+static FrontendPluginRegistry::Add<PluginNamingAction> X("naming-plugin",
+                                                         "naming plugin");

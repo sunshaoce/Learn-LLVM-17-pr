@@ -15,13 +15,16 @@ class CodeGenerator {
   ModuleDeclaration *CM;
 
 protected:
-  CodeGenerator(llvm::LLVMContext &Ctx, ASTContext &ASTCtx, llvm::TargetMachine *TM)
+  CodeGenerator(llvm::LLVMContext &Ctx, ASTContext &ASTCtx,
+                llvm::TargetMachine *TM)
       : Ctx(Ctx), ASTCtx(ASTCtx), TM(TM), CM(nullptr) {}
 
 public:
-  static CodeGenerator *create(llvm::LLVMContext &Ctx, ASTContext &ASTCtx, llvm::TargetMachine *TM);
+  static CodeGenerator *create(llvm::LLVMContext &Ctx, ASTContext &ASTCtx,
+                               llvm::TargetMachine *TM);
 
-  std::unique_ptr<llvm::Module> run(ModuleDeclaration *CM, std::string FileName);
+  std::unique_ptr<llvm::Module> run(ModuleDeclaration *CM,
+                                    std::string FileName);
 };
 } // namespace tinylang
 #endif

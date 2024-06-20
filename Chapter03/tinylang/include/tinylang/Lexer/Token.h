@@ -31,29 +31,22 @@ public:
   /// {...}".
   bool is(tok::TokenKind K) const { return Kind == K; }
   bool isNot(tok::TokenKind K) const { return Kind != K; }
-  template <typename... Tokens>
-  bool isOneOf(Tokens &&... Toks) const {
+  template <typename... Tokens> bool isOneOf(Tokens &&...Toks) const {
     return (... || is(Toks));
   }
 
-  const char *getName() const {
-    return tok::getTokenName(Kind);
-  }
+  const char *getName() const { return tok::getTokenName(Kind); }
 
-  SMLoc getLocation() const {
-    return SMLoc::getFromPointer(Ptr);
-  }
+  SMLoc getLocation() const { return SMLoc::getFromPointer(Ptr); }
   size_t getLength() const { return Length; }
 
   StringRef getIdentifier() {
-    assert(is(tok::identifier) &&
-           "Cannot get identfier of non-identifier");
+    assert(is(tok::identifier) && "Cannot get identfier of non-identifier");
     return StringRef(Ptr, Length);
   }
 
   StringRef getLiteralData() {
-    assert(isOneOf(tok::integer_literal,
-                   tok::string_literal) &&
+    assert(isOneOf(tok::integer_literal, tok::string_literal) &&
            "Cannot get literal data of non-literal");
     return StringRef(Ptr, Length);
   }

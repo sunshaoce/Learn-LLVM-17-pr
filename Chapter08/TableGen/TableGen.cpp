@@ -15,18 +15,16 @@ enum ActionType {
 };
 
 namespace {
-cl::opt<ActionType> Action(
-    cl::desc("Action to perform:"),
-    cl::values(
-        clEnumValN(
-            PrintRecords, "print-records",
-            "Print all records to stdout (default)"),
-        clEnumValN(DumpJSON, "dump-json",
-                   "Dump all records as "
-                   "machine-readable JSON"),
-        clEnumValN(GenTokens, "gen-tokens",
-                   "Generate token kinds and keyword "
-                   "filter")));
+cl::opt<ActionType>
+    Action(cl::desc("Action to perform:"),
+           cl::values(clEnumValN(PrintRecords, "print-records",
+                                 "Print all records to stdout (default)"),
+                      clEnumValN(DumpJSON, "dump-json",
+                                 "Dump all records as "
+                                 "machine-readable JSON"),
+                      clEnumValN(GenTokens, "gen-tokens",
+                                 "Generate token kinds and keyword "
+                                 "filter")));
 
 bool Main(raw_ostream &OS, RecordKeeper &Records) {
   switch (Action) {

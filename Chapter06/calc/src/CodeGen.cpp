@@ -156,7 +156,8 @@ public:
       // Declare personality function.
       FunctionType *PersFty;
       Function *PersFn;
-      createFunc(PersFty, PersFn, "__gxx_personality_v0", Int32Ty, std::nullopt, true);
+      createFunc(PersFty, PersFn, "__gxx_personality_v0", Int32Ty, std::nullopt,
+                 true);
 
       // Attach personality function to main()
       Function *Fn = Builder.GetInsertBlock()->getParent();

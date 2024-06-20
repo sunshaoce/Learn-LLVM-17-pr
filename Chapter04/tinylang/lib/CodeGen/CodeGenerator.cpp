@@ -9,15 +9,13 @@
 
 using namespace tinylang;
 
-CodeGenerator *
-CodeGenerator::create(llvm::LLVMContext &Ctx,
-                      llvm::TargetMachine *TM) {
+CodeGenerator *CodeGenerator::create(llvm::LLVMContext &Ctx,
+                                     llvm::TargetMachine *TM) {
   return new CodeGenerator(Ctx, TM);
 }
 
-std::unique_ptr<llvm::Module>
-CodeGenerator::run(ModuleDeclaration *Mod,
-                   std::string FileName) {
+std::unique_ptr<llvm::Module> CodeGenerator::run(ModuleDeclaration *Mod,
+                                                 std::string FileName) {
   std::unique_ptr<llvm::Module> M =
       std::make_unique<llvm::Module>(FileName, Ctx);
   M->setTargetTriple(TM->getTargetTriple().getTriple());

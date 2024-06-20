@@ -1,9 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern "C" void calc_write(int v) {
-  printf("The result is: %d\n", v);
-}
+extern "C" void calc_write(int v) { printf("The result is: %d\n", v); }
 
 extern "C" int calc_read(char *s) {
   char buf[64];

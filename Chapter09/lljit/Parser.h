@@ -38,9 +38,7 @@ class Parser {
   Expr *parseFactor();
 
 public:
-  Parser(Lexer &Lex) : Lex(Lex), HasError(false) {
-    advance();
-  }
+  Parser(Lexer &Lex) : Lex(Lex), HasError(false) { advance(); }
   AST *parse();
   bool hasError() { return HasError; }
 };
