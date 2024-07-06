@@ -103,18 +103,18 @@ std::string outputFilename(StringRef InputFilename) {
   if (InputFilename == "-") {
     OutputFilename = "-";
   } else {
-    if (InputFilename.endswith(".mod") || InputFilename.endswith(".mod"))
+    if (InputFilename.ends_with(".mod"))
       OutputFilename = InputFilename.drop_back(4).str();
     else
       OutputFilename = InputFilename.str();
     switch (FileType) {
-    case CGFT_AssemblyFile:
+    case CodeGenFileType::AssemblyFile:
       OutputFilename.append(EmitLLVM ? ".ll" : ".s");
       break;
-    case CGFT_ObjectFile:
+    case CodeGenFileType::ObjectFile:
       OutputFilename.append(".o");
       break;
-    case CGFT_Null:
+    case CodeGenFileType::Null:
       OutputFilename.append(".null");
       break;
     }
@@ -209,7 +209,7 @@ bool emit(StringRef Argv0, llvm::Module *M, llvm::TargetMachine *TM,
   std::error_code EC;
   sys::fs::OpenFlags OpenFlags = sys::fs::OF_None;
   CodeGenFileType FileType = codegen::getFileType();
-  if (FileType == CGFT_AssemblyFile)
+  if (FileType == CodeGenFileType::AssemblyFile)
     OpenFlags |= sys::fs::OF_Text;
   auto Out = std::make_unique<llvm::ToolOutputFile>(
       outputFilename(InputFilename), EC, OpenFlags);
@@ -221,7 +221,7 @@ bool emit(StringRef Argv0, llvm::Module *M, llvm::TargetMachine *TM,
   legacy::PassManager CodeGenPM;
   CodeGenPM.add(
       createTargetTransformInfoWrapperPass(TM->getTargetIRAnalysis()));
-  if (FileType == CGFT_AssemblyFile && EmitLLVM) {
+  if (FileType == CodeGenFileType::AssemblyFile && EmitLLVM) {
     CodeGenPM.add(createPrintModulePass(Out->os()));
   } else {
     if (TM->addPassesToEmitFile(CodeGenPM, Out->os(), nullptr, FileType)) {

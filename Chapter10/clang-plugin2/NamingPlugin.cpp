@@ -13,6 +13,7 @@ private:
 
 public:
   explicit NamingVisitor(CompilerInstance &CI) : ASTCtx(CI.getASTContext()) {}
+  virtual ~NamingVisitor() {}
 
   virtual bool VisitVarDecl(VarDecl *VD) {
     llvm::errs() << "Name: " << VD->getName() << "\n";

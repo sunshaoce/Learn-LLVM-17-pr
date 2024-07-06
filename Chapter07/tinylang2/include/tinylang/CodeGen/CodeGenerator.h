@@ -12,7 +12,7 @@ class CodeGenerator {
   llvm::LLVMContext &Ctx;
   ASTContext &ASTCtx;
   llvm::TargetMachine *TM;
-  ModuleDeclaration *CM;
+  [[maybe_unused]] ModuleDeclaration *CM;
 
 protected:
   CodeGenerator(llvm::LLVMContext &Ctx, ASTContext &ASTCtx,

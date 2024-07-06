@@ -1,11 +1,13 @@
 cmake_minimum_required(VERSION 3.20.0)
 
-if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR)
+if(CMAKE_SOURCE_DIR STREQUAL CMAKE_CURRENT_SOURCE_DIR OR BUILD_ALL)
   project(Tinylang)
 
   find_package(LLVM REQUIRED HINTS "${LLVM_CMAKE_PATH}")
   list(APPEND CMAKE_MODULE_PATH ${LLVM_DIR})
-  include(ChooseMSVCCRT)
+  if(NOT BUILD_ALL)
+    include(ChooseMSVCCRT)
+  endif()
 
   include(AddLLVM)
   include(HandleLLVMOptions)

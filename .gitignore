@@ -29,3 +29,7 @@ build/
 .vs
 # clangd index
 .clangd
+.cache/
+/CMakeLists.txt
+
+!configs/

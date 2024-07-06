@@ -328,7 +328,7 @@ Expr *Sema::actOnPrefixExpression(Expr *E, const OperatorInfo &Op) {
 
 Expr *Sema::actOnIntegerLiteral(SMLoc Loc, StringRef Literal) {
   uint8_t Radix = 10;
-  if (Literal.endswith("H")) {
+  if (Literal.ends_with("H")) {
     Literal = Literal.drop_back();
     Radix = 16;
   }

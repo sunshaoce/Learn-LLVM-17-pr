@@ -125,7 +125,7 @@ void Lexer::identifier(Token &Result) {
 }
 
 void Lexer::number(Token &Result) {
-  const char *Start = CurPtr;
+  [[maybe_unused]] const char *Start = CurPtr;
   const char *End = CurPtr + 1;
   tok::TokenKind Kind = tok::unknown;
   bool IsHex = false;

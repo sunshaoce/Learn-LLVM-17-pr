@@ -60,7 +60,7 @@ llvm::DIType *CGDebugInfo::getArrayType(ArrayTypeDeclaration *Ty) {
   auto *ATy = llvm::cast<llvm::ArrayType>(CGM.convertType(Ty));
   const llvm::DataLayout &DL = CGM.getModule()->getDataLayout();
 
-  Expr *Nums = Ty->getNums();
+  [[maybe_unused]] Expr *Nums = Ty->getNums();
   uint64_t NumElements = 5; // TODO Eval Nums
   llvm::SmallVector<llvm::Metadata *, 4> Subscripts;
   Subscripts.push_back(DBuilder.getOrCreateSubrange(0, NumElements));

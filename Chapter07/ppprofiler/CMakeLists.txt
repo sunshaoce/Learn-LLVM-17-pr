@@ -7,7 +7,9 @@ message(STATUS "Found LLVM ${LLVM_PACKAGE_VERSION}")
 message(STATUS "Using LLVMConfig.cmake in: ${LLVM_DIR}")
 
 list(APPEND CMAKE_MODULE_PATH ${LLVM_DIR})
-include(ChooseMSVCCRT)
+if(NOT BUILD_ALL)
+  include(ChooseMSVCCRT)
+endif()
 
 include(AddLLVM)
 include(HandleLLVMOptions)

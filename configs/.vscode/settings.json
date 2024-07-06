@@ -1,0 +1,8 @@
+{
+  "cmake.sourceDirectory": "${workspaceFolder}",
+  "cmake.debugConfig": {
+    "args": [
+      // "${workspaceFolder}/build/source.txt",
+    ]
+  },
+}

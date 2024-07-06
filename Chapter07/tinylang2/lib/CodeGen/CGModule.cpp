@@ -38,7 +38,7 @@ llvm::Type *CGModule::convertType(TypeDeclaration *Ty) {
     return TypeCache[Ty] = T;
   } else if (auto *ArrayTy = llvm::dyn_cast<ArrayTypeDeclaration>(Ty)) {
     llvm::Type *Component = convertType(ArrayTy->getType());
-    Expr *Nums = ArrayTy->getNums();
+    [[maybe_unused]] Expr *Nums = ArrayTy->getNums();
     uint64_t NumElements = 5; // TODO Eval Nums
     llvm::Type *T = llvm::ArrayType::get(Component, NumElements);
     return TypeCache[Ty] = T;

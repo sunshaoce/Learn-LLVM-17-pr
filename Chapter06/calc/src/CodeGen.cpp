@@ -37,7 +37,7 @@ public:
     Int32Ty = Type::getInt32Ty(M->getContext());
     Int64Ty = Type::getInt64Ty(M->getContext());
     Int8PtrTy = PointerType::get(Int8Ty, 0);
-    Int32PtrTy = Type::getInt32PtrTy(M->getContext());
+    Int32PtrTy = PointerType::get(M->getContext(), 0);
     Int8PtrPtrTy = Int8PtrTy->getPointerTo();
     Int32Zero = ConstantInt::get(Int32Ty, 0, true);
 

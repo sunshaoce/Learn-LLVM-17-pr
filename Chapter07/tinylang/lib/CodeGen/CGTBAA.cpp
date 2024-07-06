@@ -2,6 +2,7 @@
 #include "tinylang/CodeGen/CGTBAA.h"
 #include "tinylang/CodeGen/CGModule.h"
 #include "llvm/IR/DataLayout.h"
+#include <string>
 
 using namespace tinylang;
 
@@ -52,7 +53,7 @@ llvm::MDNode *CGTBAA::getTypeInfo(TypeDeclaration *Ty) {
       Fields.emplace_back(getTypeInfo(F.getType()), Offset);
       ++Idx;
     }
-    StringRef Name = CGM.mangleName(Record);
+    std::string Name = CGM.mangleName(Record);
     return createStructTypeNode(Record, Name, Fields);
   }
   return nullptr;
