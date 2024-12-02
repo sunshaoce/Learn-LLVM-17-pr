@@ -1,6 +1,8 @@
 #include "tinylang/CodeGen/CGDebugInfo.h"
 #include "tinylang/CodeGen/CGModule.h"
+#include "llvm/IR/DIBuilder.h"
 #include "llvm/IR/DataLayout.h"
+#include "llvm/IR/Instruction.h"
 #include "llvm/Support/FileSystem.h"
 #include "llvm/Support/Path.h"
 
@@ -154,9 +156,9 @@ CGDebugInfo::emitParameterVariable(FormalParameterDeclaration *FP, size_t Idx,
 void CGDebugInfo::emitValue(llvm::Value *Val, llvm::DILocalVariable *Var,
                             SMLoc Loc, llvm::BasicBlock *BB) {
   llvm::DebugLoc DLoc = getDebugLoc(Loc);
-  llvm::Instruction *Instr = DBuilder.insertDbgValueIntrinsic(
+  llvm::DbgInstPtr Instr = DBuilder.insertDbgValueIntrinsic(
       Val, Var, DBuilder.createExpression(), DLoc, BB);
-  Instr->setDebugLoc(DLoc);
+  Instr.get<llvm::Instruction *>()->setDebugLoc(DLoc);
 }
 
 llvm::DebugLoc CGDebugInfo::getDebugLoc(SMLoc Loc) {

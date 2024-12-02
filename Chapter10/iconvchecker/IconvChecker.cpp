@@ -54,8 +54,9 @@ public:
 } // namespace
 
 IconvChecker::IconvChecker()
-    : IconvOpenFn({"iconv_open"}), IconvFn({"iconv"}),
-      IconvCloseFn({"iconv_close"}, 1) {
+    : IconvOpenFn(CallDescription::Mode::Unspecified, {"iconv_open"}),
+      IconvFn(CallDescription::Mode::Unspecified, {"iconv"}),
+      IconvCloseFn(CallDescription::Mode::Unspecified, {"iconv_close"}, 1) {
   DoubleCloseBugType.reset(
       new BugType(this, "Double iconv_close", "Iconv API Error"));
 

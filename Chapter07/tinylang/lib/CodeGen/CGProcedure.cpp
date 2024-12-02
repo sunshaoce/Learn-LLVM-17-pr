@@ -271,7 +271,7 @@ llvm::Value *CGProcedure::emitExpr(Expr *E) {
     auto &Selectors = Var->getSelectors();
     for (auto I = Selectors.begin(), E = Selectors.end(); I != E;
          /* no increment */) {
-      if (auto *IdxSel = llvm::dyn_cast<IndexSelector>(*I)) {
+      if ([[maybe_unused]] auto *IdxSel = llvm::dyn_cast<IndexSelector>(*I)) {
         llvm::SmallVector<llvm::Value *, 4> IdxList;
         while (I != E) {
           if (auto *Sel = llvm::dyn_cast<IndexSelector>(*I)) {
@@ -282,7 +282,8 @@ llvm::Value *CGProcedure::emitExpr(Expr *E) {
         }
         Val = Builder.CreateInBoundsGEP(Val->getType(), Val, IdxList);
         Val = Builder.CreateLoad(Val->getType(), Val);
-      } else if (auto *FieldSel = llvm::dyn_cast<FieldSelector>(*I)) {
+      } else if ([[maybe_unused]] auto *FieldSel =
+                     llvm::dyn_cast<FieldSelector>(*I)) {
         llvm::SmallVector<llvm::Value *, 4> IdxList;
         while (I != E) {
           if (auto *Sel = llvm::dyn_cast<FieldSelector>(*I)) {
@@ -295,7 +296,8 @@ llvm::Value *CGProcedure::emitExpr(Expr *E) {
         }
         Val = Builder.CreateInBoundsGEP(Val->getType(), Val, IdxList);
         Val = Builder.CreateLoad(Val->getType(), Val);
-      } else if (auto *DerefSel = llvm::dyn_cast<DereferenceSelector>(*I)) {
+      } else if ([[maybe_unused]] auto *DerefSel =
+                     llvm::dyn_cast<DereferenceSelector>(*I)) {
         Val = Builder.CreateLoad(Val->getType(), Val);
         ++I;
       } else {

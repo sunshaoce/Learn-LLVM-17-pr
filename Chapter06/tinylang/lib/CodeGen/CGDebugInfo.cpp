@@ -158,9 +158,9 @@ CGDebugInfo::emitParameterVariable(FormalParameterDeclaration *FP, size_t Idx,
 void CGDebugInfo::emitValue(llvm::Value *Val, llvm::DILocalVariable *Var,
                             SMLoc Loc, llvm::BasicBlock *BB) {
   llvm::DebugLoc DLoc = getDebugLoc(Loc);
-  llvm::Instruction *Instr = DBuilder.insertDbgValueIntrinsic(
+  llvm::DbgInstPtr Instr = DBuilder.insertDbgValueIntrinsic(
       Val, Var, DBuilder.createExpression(), DLoc, BB);
-  Instr->setDebugLoc(DLoc);
+  Instr.get<llvm::Instruction *>()->setDebugLoc(DLoc);
 }
 
 llvm::DebugLoc CGDebugInfo::getDebugLoc(SMLoc Loc) {
